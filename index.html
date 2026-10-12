@@ -8,11 +8,15 @@
     <meta name="theme-color" content="#f7f8f5" />
     <title>小日常私人版</title>
     <script>
-      const redirect = sessionStorage.redirect
-      delete sessionStorage.redirect
-      if (redirect && redirect !== location.href) {
-        const url = new URL(redirect)
-        history.replaceState(null, '', url.pathname + url.search + url.hash)
+      try {
+        const redirect = sessionStorage.redirect
+        delete sessionStorage.redirect
+        if (redirect && redirect !== location.href) {
+          const url = new URL(redirect)
+          history.replaceState(null, '', url.pathname + url.search + url.hash)
+        }
+      } catch (_) {
+        // Safari private browsing can disable sessionStorage.
       }
     </script>
   </head>

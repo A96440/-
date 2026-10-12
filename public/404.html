@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <script>
-      sessionStorage.redirect = location.href
+      try { sessionStorage.redirect = location.href } catch (_) {}
       location.replace('/-/')
     </script>
   </head>

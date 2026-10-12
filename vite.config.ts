@@ -3,12 +3,19 @@ import { defineConfig } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
 const base = process.env.GITHUB_ACTIONS === 'true' ? '/-/' : '/'
+const safariAssetCompatibility = {
+  name: 'safari-asset-compatibility',
+  enforce: 'post' as const,
+  transformIndexHtml(html: string) {
+    return html.replaceAll(' crossorigin', '')
+  },
+}
 
 // https://vite.dev/config/
 export default defineConfig({
   base,
   plugins: [react(), VitePWA({
-    registerType: 'prompt',
+    registerType: 'autoUpdate',
     includeAssets: ['favicon.svg'],
     manifest: {
       name: '小日常私人版',
@@ -25,6 +32,6 @@ export default defineConfig({
         { src: `${base}icon-512.svg`, sizes: '512x512', type: 'image/svg+xml' },
       ],
     },
-    workbox: { globPatterns: ['**/*.{js,css,html,ico,svg,png}'] },
-  })],
+    workbox: { globPatterns: ['**/*.{js,css,html,ico,svg,png}'], cleanupOutdatedCaches: true },
+  }), safariAssetCompatibility],
 })
