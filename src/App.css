@@ -98,7 +98,7 @@ h2 { color: #718178; font-size: .86rem; font-weight: 600; margin-bottom: 10px; }
 .weekday.selected { background: #dcebdd; border-color: #6d9875; color: #45634d; font-weight: 600; }
 .color-grid { display: flex; gap: 12px; }
 .color-choice { border: 2px solid #fff; border-radius: 50%; cursor: pointer; height: 30px; width: 30px; }
-.habit-form input, .habit-form select { background: #fafcf9; border: 1px solid #e1e9e1; border-radius: 11px; color: #34463a; outline: 0; padding: 12px; }
+.habit-form input, .habit-form select { font-size: 16px; background: #fafcf9; border: 1px solid #e1e9e1; border-radius: 11px; color: #34463a; outline: 0; padding: 12px; }
 .habit-form input:focus, .habit-form select:focus { border-color: #7da487; box-shadow: 0 0 0 3px #e3f0e5; }
 .habit-form button:disabled { cursor: not-allowed; opacity: .5; }
 .danger-button { background: #fff4f2; border: 1px solid #f3d4cf; border-radius: 12px; color: #b45b50; cursor: pointer; padding: 11px; }
@@ -205,14 +205,10 @@ h2 { color: #718178; font-size: .86rem; font-weight: 600; margin-bottom: 10px; }
 .habit-period-header small { color: #96918c; font-size: .8rem; }
 .mini-weekdays { color: #8f8a85; display: grid; font-size: .73rem; grid-template-columns: repeat(7, 1fr); margin-bottom: 6px; text-align: center; }
 .month-habit-grid { display: grid; gap: 5px; grid-template-columns: repeat(7, minmax(0, 1fr)); }
-.mini-day { align-items: center; background: #fff; border: 1px solid #e6e3df; border-radius: 7px; color: #68625c; cursor: pointer; display: flex; font-size: .72rem; height: 30px; justify-content: center; min-width: 0; padding: 0; }
+.mini-day { aspect-ratio: 1; align-items: center; background: #fff; border: 1px solid #e6e3df; border-radius: 7px; color: #68625c; cursor: pointer; display: flex; font-size: .72rem; height: auto; justify-content: center; min-width: 0; padding: 0; }
 .mini-day.empty { background: transparent; border-color: transparent; cursor: default; }
 .mini-day.checked { background: var(--check-color, #d8cbc4); border-color: var(--check-color, #d8cbc4); color: #4f4944; font-weight: 700; }
 .year-habit-card { padding-bottom: 18px; }
-.year-mini-grid { display: grid; gap: 18px 14px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
-.mini-month > strong { color: #aaa5a0; display: block; font-size: .75rem; font-weight: 500; margin-bottom: 5px; }
-.mini-month-days { display: grid; gap: 3px; grid-template-columns: repeat(7, minmax(0, 1fr)); }
-.mini-month-days .mini-day { border-radius: 3px; height: auto; min-height: 11px; }
 .timeline-card { background: #fff; border: 1px solid #e5e3e1; border-radius: 22px; box-shadow: 0 2px 4px rgba(45, 40, 36, .025); padding: 18px 16px; }
 .timeline-header { align-items: center; border-bottom: 1px solid #f0eeeb; color: #4c4844; display: flex; justify-content: space-between; padding-bottom: 14px; }
 .timeline-header strong { font-size: 1.1rem; }
@@ -228,4 +224,24 @@ h2 { color: #718178; font-size: .86rem; font-weight: 600; margin-bottom: 10px; }
 .timeline-item-copy small { color: #aaa5a0; font-size: .77rem; }
 .timeline-empty { color: #aaa5a0; font-size: .88rem; padding: 28px 0 20px; text-align: center; }
 @media (min-width: 620px) { .month-period-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (max-width: 560px) { .period-switch { margin-left: 10px; margin-right: 10px; } .period-switch button { font-size: 1rem; padding: 8px 4px; } .year-mini-grid { gap: 16px 10px; grid-template-columns: repeat(2, minmax(0, 1fr)); } .mini-day { font-size: .68rem; height: 28px; } .mini-month-days .mini-day { min-height: 9px; } .timeline-item { grid-template-columns: 58px 40px minmax(0, 1fr); } }
+@media (max-width: 560px) { .period-switch { margin-left: 10px; margin-right: 10px; } .period-switch button { font-size: 1rem; padding: 8px 4px; } .year-mini-grid { gap: 16px 10px; grid-template-columns: repeat(2, minmax(0, 1fr)); } .mini-day { font-size: .68rem; } .mini-month-days .mini-day { min-height: 9px; } .timeline-item { grid-template-columns: 58px 40px minmax(0, 1fr); } }
+
+.month-period-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.month-habit-card { padding: 12px 10px; }
+.month-habit-card .habit-period-header { align-items: flex-start; gap: 7px; min-height: 52px; }
+.month-habit-card .habit-period-header strong { font-size: .85rem; line-height: 1.4; }
+.month-habit-card .period-habit-icon { font-size: 1.2rem; height: 32px; width: 32px; }
+.month-habit-card .habit-period-header small { font-size: .72rem; }
+.annual-band { margin-top: 24px; }
+.annual-month-labels { height: 20px; margin-left: 18px; position: relative; }
+.annual-month-labels span { color: #b1aca6; font-size: .65rem; position: absolute; top: 0; white-space: nowrap; }
+.annual-body { display: grid; gap: 6px; grid-template-columns: 12px minmax(0, 1fr); }
+.annual-weekdays { color: #c0bbb5; display: grid; font-size: .6rem; grid-template-rows: repeat(7, 1fr); }
+.annual-weekdays span { align-self: center; }
+.annual-days { display: grid; gap: 3px; grid-auto-flow: column; grid-template-rows: repeat(7, 1fr); }
+.annual-day { aspect-ratio: 1; background: #fff; border: 1px solid #eae7e3; border-radius: 2px; display: block; }
+.annual-day.blank { visibility: hidden; }
+.annual-day.checked { background: var(--check-color); border-color: var(--check-color); }
+.annual-day.today { outline: 1px solid var(--check-color); outline-offset: 0; }
+.annual-day.future { opacity: .35; }
+@media (max-width: 400px) { .annual-days { gap: 2px; } .month-habit-grid { gap: 3px; } .month-habit-card { padding: 10px 7px; } }

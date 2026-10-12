@@ -8,6 +8,7 @@ import type { CheckRecord, Habit } from '../../domain/types'
 
 type Period = 'day' | 'week' | 'month' | 'year'
 const dayLabels = ['一', '二', '三', '四', '五', '六', '日']
+const currentDateKey = dateKey(new Date())
 
 function cloneDate(date: Date) { return new Date(date.getFullYear(), date.getMonth(), date.getDate()) }
 function periodDates(period: Period, anchor: Date) {
@@ -27,7 +28,8 @@ function formatRange(dates: Date[], period: Period) {
   return (start.getMonth() + 1) + '月' + start.getDate() + '日—' + (end.getMonth() + 1) + '月' + end.getDate() + '日'
 }
 function formatLongRange(dates: Date[], period: Period) {
-  if (period === 'year') return dates[0].getFullYear() + '年 · 每个习惯的全年记录'
+  if (period === 'year') return '每个习惯的全年记录'
+  if (period === 'month') return '每个习惯的整月记录'
   const format = (date: Date) => date.getFullYear() + '/' + (date.getMonth() + 1) + '/' + date.getDate()
   return dates.length === 1 ? format(dates[0]) : format(dates[0]) + ' – ' + format(dates[dates.length - 1])
 }
@@ -58,10 +60,10 @@ export function HistoryPage() {
   }
 
   return <section className="page history-home">
-    <div className="period-switch" role="tablist" aria-label="查看周期">{(['day', 'week', 'month', 'year'] as const).map((item) => <button className={period === item ? 'selected' : ''} key={item} onClick={() => setPeriod(item)} role="tab" type="button">{item === 'day' ? '日' : item === 'week' ? '周' : item === 'month' ? '月' : '年'}</button>)}</div>
+    <div className="period-switch" role="tablist" aria-label="查看周期">{(['day', 'week', 'month', 'year'] as const).map((item) => <button className={period === item ? 'selected' : ''} key={item} onClick={() => setPeriod(item)} role="tab" aria-selected={period === item} type="button">{item === 'day' ? '日' : item === 'week' ? '周' : item === 'month' ? '月' : '年'}</button>)}</div>
     <div className="history-date-nav"><button aria-label="上一个周期" onClick={() => move(-1)} type="button">‹</button><strong>{formatRange(dates, period)}</strong><button aria-label="下一个周期" onClick={() => move(1)} type="button">›</button></div>
-    <div className="history-heading"><div><h1><span aria-hidden="true" className="history-title-icon"><svg viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="16" rx="2" /><path d="M7.5 4.5v-2M16.5 4.5v-2M3.5 9h17M7 17v-3M12 17v-5M17 17v-8" /></svg></span> 打卡表</h1><p>{formatLongRange(dates, period)}</p></div><button className="filter-control" type="button">☷ <span>全部</span></button></div>
-    {period === 'day' ? <DayTimeline date={dates[0]} habits={enabledHabits} checks={checks} /> : period === 'week' ? <MatrixTable dates={dates} habits={enabledHabits} completed={completed} onToggle={toggle} /> : period === 'month' ? <MonthSummary date={dates[0]} habits={enabledHabits} completed={completed} onToggle={toggle} /> : <YearSummary year={anchor.getFullYear()} habits={enabledHabits} completed={completed} onToggle={toggle} />}
+    <div className="history-heading"><div><h1><span aria-hidden="true" className="history-title-icon"><svg viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="16" rx="2" /><path d="M7.5 4.5v-2M16.5 4.5v-2M3.5 9h17M7 17v-3M12 17v-5M17 17v-8" /></svg></span> 打卡表</h1><p>{formatLongRange(dates, period)}</p></div><span className="filter-control">全部习惯</span></div>
+    {period === 'day' ? <DayTimeline date={dates[0]} habits={enabledHabits} checks={checks} /> : period === 'week' ? <MatrixTable dates={dates} habits={enabledHabits} completed={completed} onToggle={toggle} /> : period === 'month' ? <MonthSummary date={dates[0]} habits={enabledHabits} completed={completed} onToggle={toggle} /> : <YearSummary year={anchor.getFullYear()} habits={enabledHabits} completed={completed} />}
     <div className="history-total">总计： <strong>{total}</strong></div>
   </section>
 }
@@ -78,11 +80,39 @@ function MatrixTable({ dates, habits, completed, onToggle }: { dates: Date[]; ha
 
 function MonthSummary({ date, habits, completed, onToggle }: { date: Date; habits: Habit[]; completed: Set<string>; onToggle: (habitId: string, date: Date) => Promise<void> }) {
   const dates = getMonthDates(date)
-  return <div className="habit-period-grid month-period-grid">{habits.length === 0 ? <div className="checkin-empty">还没有启用的习惯</div> : habits.map((habit) => <article className="period-habit-card month-habit-card" key={habit.id}><HabitPeriodHeader habit={habit} count={dates.filter((day) => completed.has(habit.id + ':' + dateKey(day))).length} /><div className="mini-weekdays">{dayLabels.map((label) => <span key={label}>{label}</span>)}</div><div className="month-habit-grid">{Array.from({ length: (dates[0].getDay() + 6) % 7 }, (_, index) => <span className="mini-day empty" key={'empty-' + index} />)}{dates.map((day) => { const checked = completed.has(habit.id + ':' + dateKey(day)); return <button className={checked ? 'mini-day checked' : 'mini-day'} key={dateKey(day)} onClick={() => onToggle(habit.id, day)} style={checked ? { '--check-color': habit.color } as CSSProperties : undefined} type="button">{day.getDate()}</button> })}</div></article>)}</div>
+  return <div className="habit-period-grid month-period-grid">{habits.length === 0 ? <div className="checkin-empty">还没有启用的习惯</div> : habits.map((habit) => <article className="period-habit-card month-habit-card" key={habit.id}><HabitPeriodHeader habit={habit} count={dates.filter((day) => completed.has(habit.id + ':' + dateKey(day))).length} /><div className="mini-weekdays">{dayLabels.map((label) => <span key={label}>{label}</span>)}</div><div className="month-habit-grid">{Array.from({ length: (dates[0].getDay() + 6) % 7 }, (_, index) => <span className="mini-day empty" key={'empty-' + index} />)}{dates.map((day) => { const checked = completed.has(habit.id + ':' + dateKey(day)); return <button aria-label={habit.name + ' ' + dateKey(day)} aria-pressed={checked} className={checked ? 'mini-day checked' : 'mini-day'} key={dateKey(day)} onClick={() => onToggle(habit.id, day)} style={checked ? { '--check-color': habit.color } as CSSProperties : undefined} type="button">{day.getDate()}</button> })}</div></article>)}</div>
 }
 
-function YearSummary({ year, habits, completed, onToggle }: { year: number; habits: Habit[]; completed: Set<string>; onToggle: (habitId: string, date: Date) => Promise<void> }) {
-  return <div className="habit-period-grid year-period-grid">{habits.length === 0 ? <div className="checkin-empty">还没有启用的习惯</div> : habits.map((habit) => <article className="period-habit-card year-habit-card" key={habit.id}><HabitPeriodHeader habit={habit} count={Array.from(completed).filter((key) => key.startsWith(habit.id + ':') && key.slice(-10).startsWith(String(year))).length} /><div className="year-mini-grid">{Array.from({ length: 12 }, (_, month) => { const monthDate = new Date(year, month, 1); const monthDates = getMonthDates(monthDate); const offset = (monthDate.getDay() + 6) % 7; return <div className="mini-month" key={month}><strong>{month + 1}月</strong><div className="mini-month-days">{Array.from({ length: offset }, (_, index) => <span className="mini-day empty" key={'empty-' + index} />)}{monthDates.map((day) => { const checked = completed.has(habit.id + ':' + dateKey(day)); return <button aria-label={habit.name + ' ' + dateKey(day)} className={checked ? 'mini-day checked' : 'mini-day'} key={dateKey(day)} onClick={() => onToggle(habit.id, day)} style={checked ? { '--check-color': habit.color } as CSSProperties : undefined} type="button" /> })}</div></div> })}</div></article>)}</div>
+function YearSummary({ year, habits, completed }: { year: number; habits: Habit[]; completed: Set<string> }) {
+  return <div className="habit-period-grid year-period-grid">{habits.length === 0 ? <div className="checkin-empty">还没有启用的习惯</div> : habits.map((habit) => <article className="period-habit-card year-habit-card" key={habit.id}>
+    <HabitPeriodHeader habit={habit} count={Array.from(completed).filter((key) => key.startsWith(habit.id + ':') && key.slice(-10).startsWith(String(year))).length} />
+    <AnnualBand year={year} firstMonth={0} habit={habit} completed={completed} />
+    <AnnualBand year={year} firstMonth={6} habit={habit} completed={completed} />
+  </article>)}</div>
+}
+
+function AnnualBand({ year, firstMonth, habit, completed }: { year: number; firstMonth: number; habit: Habit; completed: Set<string> }) {
+  const dates = Array.from({ length: 6 }, (_, index) => getMonthDates(new Date(year, firstMonth + index, 1))).flat()
+  const offset = (dates[0].getDay() + 6) % 7
+  const weeks = Math.ceil((offset + dates.length) / 7)
+  return <div className="annual-band" aria-label={year + '年' + (firstMonth + 1) + '月至' + (firstMonth + 6) + '月'}>
+    <div className="annual-month-labels">{Array.from({ length: 6 }, (_, index) => {
+      const month = firstMonth + index
+      const dayIndex = dates.findIndex((day) => day.getMonth() === month)
+      return <span key={month} style={{ left: Math.floor((offset + dayIndex) / 7) / weeks * 100 + '%' }}>{month + 1}月</span>
+    })}</div>
+    <div className="annual-body"><div className="annual-weekdays">{dayLabels.map((label, index) => <span key={label}>{index % 2 === 0 && index < 5 ? label : ''}</span>)}</div>
+      <div className="annual-days" style={{ gridTemplateColumns: `repeat(${weeks}, minmax(0, 1fr))` }}>
+        {Array.from({ length: weeks * 7 }, (_, index) => {
+          const date = dates[index - offset]
+          if (!date) return <span className="annual-day blank" key={index} />
+          const key = dateKey(date)
+          const checked = completed.has(habit.id + ':' + key)
+          return <span aria-label={key + (checked ? ' 已完成' : ' 未完成')} title={key + (checked ? ' 已完成' : ' 未完成')} className={'annual-day' + (checked ? ' checked' : '') + (key === currentDateKey ? ' today' : '') + (key > currentDateKey ? ' future' : '')} key={key} style={{ '--check-color': habit.color } as CSSProperties} />
+        })}
+      </div>
+    </div>
+  </div>
 }
 
 function HabitPeriodHeader({ habit, count }: { habit: Habit; count: number }) {
