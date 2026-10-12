@@ -8,9 +8,9 @@ function scheduleLabel(habit: Habit): string {
   if (habit.scheduleType === 'daily') return '每天'
   if (habit.scheduleType === 'weeklyCount') return '每周' + (habit.scheduleConfig.count ?? 1) + '天'
   if (habit.scheduleType === 'monthlyCount') return '每月' + (habit.scheduleConfig.count ?? 1) + '天'
-  if (habit.scheduleType === 'monthlyDate') return '每月' + (habit.scheduleConfig.day ?? 1) + '日'
+  if (habit.scheduleType === 'monthlyDate') return '每月固定' + (habit.scheduleConfig.day ?? 1) + '日'
   const count = habit.scheduleConfig.weekdays?.length ?? 0
-  return count === 1 ? '每周固定 1 天' : '每周固定 ' + count + ' 天'
+  return count === 7 ? '每周每天' : '每周' + count + '天'
 }
 
 export function HabitsPage() {
