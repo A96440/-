@@ -62,7 +62,7 @@ export function HistoryPage() {
   return <section className="page history-home">
     <header className="history-topbar">
       <button aria-label="快捷功能" className="round-control sparkle-control" type="button">✦</button>
-      <div className="mode-switch"><button className="mode-active" type="button">🌿 <span>习惯</span></button><button type="button">🍅 <span>专注</span></button></div>
+      <div aria-label="当前模式：习惯" className="mode-switch single-mode"><span>🌿</span><strong>习惯</strong></div>
       <button aria-label="更多设置" className="round-control more-control" type="button">•••</button>
     </header>
     <div className="period-switch" role="tablist" aria-label="查看周期">{(['day', 'week', 'month', 'year'] as const).map((item) => <button className={period === item ? 'selected' : ''} key={item} onClick={() => setPeriod(item)} role="tab" type="button">{item === 'day' ? '日' : item === 'week' ? '周' : item === 'month' ? '月' : '年'}</button>)}</div>

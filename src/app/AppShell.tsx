@@ -3,7 +3,7 @@ import { useEffect } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
 import { db } from '../db/db'
 
-const navItems = [{ to: '/today', label: '今日', icon: '✓' }, { to: '/habits', label: '习惯', icon: '▦' }, { to: '/focus', label: '专注', icon: '🍅' }, { to: '/history', label: '打卡表', icon: '▥' }, { to: '/me', label: '我的', icon: '○' }]
+const navItems = [{ to: '/today', label: '今日', icon: '✓' }, { to: '/habits', label: '习惯', icon: '⊞' }, { to: '/history', label: '打卡表', icon: '▥' }, { to: '/me', label: '我的', icon: '○' }]
 
 export function AppShell() {
   const themeSetting = useLiveQuery(() => db.settings.get('theme'), [], undefined) as { value?: string } | undefined

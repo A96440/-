@@ -7,7 +7,7 @@ import { createHabit, deleteHabit, saveHabit } from '../../db/repositories'
 import type { Habit, ScheduleType } from '../../domain/types'
 
 const colors = ['#b8d8ba', '#f4d5a6', '#d8c6e7', '#b8dce1', '#f1c2c2']
-const icons = ['🌱', '🪴', '🧴', '🪥', '🐈', '📚', '🏃', '💊']
+const icons = ['🌱', '🪴', '🌿', '🌻', '🌸', '🍀', '☀️', '🌙', '🧴', '🪥', '🧼', '🚿', '🛁', '💧', '🧹', '🧽', '🧺', '🧻', '🐈', '🐕', '🐾', '🦜', '🐠', '🏃', '🚶', '🧘', '🏋️', '🚴', '🏊', '🧗', '📚', '✍️', '🎸', '🎨', '🎵', '🎬', '💰', '💳', '🛒', '💊', '🩺', '🥗', '🍎', '☕', '🛌', '⏰', '📅', '🧠', '❤️', '⭐', '✅', '🔥', '📱', '💻', '✈️', '🏠', '🎮']
 const weekdays = ['一', '二', '三', '四', '五', '六', '日']
 
 export function HabitFormPage() {
