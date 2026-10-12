@@ -102,3 +102,57 @@ h2 { color: #718178; font-size: .86rem; font-weight: 600; margin-bottom: 10px; }
 .habit-form button:disabled { cursor: not-allowed; opacity: .5; }
 .danger-button { background: #fff4f2; border: 1px solid #f3d4cf; border-radius: 12px; color: #b45b50; cursor: pointer; padding: 11px; }
 @media (min-width: 700px) { .app-main { padding-top: 42px; } .bottom-nav { border: 1px solid #e7ece7; border-radius: 18px 18px 0 0; margin: 0 auto; max-width: 760px; } }
+
+/* Native-style check-in board */
+.history-home { max-width: 900px; padding: 14px 16px 124px; }
+.history-topbar { align-items: center; display: flex; justify-content: space-between; margin: 0 0 25px; }
+.round-control { align-items: center; background: #fff; border: 0; border-radius: 50%; box-shadow: 0 7px 24px rgba(46, 43, 39, .07); color: #4d4945; cursor: pointer; display: flex; height: 58px; justify-content: center; width: 58px; }
+.sparkle-control { color: #34302c; font-size: 2.2rem; }
+.more-control { font-size: 1.15rem; letter-spacing: 2px; }
+.mode-switch { align-items: center; background: #eeece9; border-radius: 34px; display: flex; gap: 3px; padding: 5px; }
+.mode-switch button { background: transparent; border: 0; border-radius: 29px; color: #8c8985; cursor: pointer; font-size: 1.15rem; padding: 12px 22px; }
+.mode-switch button span { margin-left: 4px; }
+.mode-switch .mode-active { background: #fffdf7; box-shadow: 0 2px 8px rgba(73, 67, 60, .08); color: #4b4742; font-weight: 700; }
+.mode-active::after { background: #78b9ac; border-radius: 50%; content: ''; display: block; height: 5px; margin: 4px auto -8px; width: 5px; }
+.period-switch { background: #f4f2ef; border-radius: 36px; display: grid; gap: 3px; grid-template-columns: repeat(4, 1fr); margin: 0 10px 24px; padding: 5px; }
+.period-switch button { background: transparent; border: 0; border-radius: 31px; color: #4f4b47; cursor: pointer; font-size: 1.35rem; font-weight: 700; padding: 13px 8px; }
+.period-switch button.selected { background: #494541; color: #fff; box-shadow: 0 3px 5px rgba(41, 37, 33, .12); }
+.history-date-nav { align-items: center; display: flex; justify-content: space-between; margin: 0 12px 28px; }
+.history-date-nav button { background: transparent; border: 0; color: #4d4945; cursor: pointer; font-size: 3rem; font-weight: 300; line-height: 1; padding: 0 8px; }
+.history-date-nav strong { color: #4b4742; font-size: clamp(1.25rem, 4vw, 1.7rem); }
+.history-heading { align-items: center; display: flex; justify-content: space-between; margin: 0 8px 18px; }
+.history-heading h1 { color: #4b4742; font-size: 1.55rem; letter-spacing: -.04em; }
+.history-heading h1 span { font-size: 1.2rem; margin-right: 5px; }
+.history-heading p { color: #bbb9b7; font-size: .95rem; margin: 8px 0 0; }
+.filter-control { background: #f8f7f5; border: 0; border-radius: 22px; color: #57534f; cursor: pointer; font-size: 1rem; padding: 10px 15px; }
+.filter-control span { margin-left: 4px; }
+.checkin-table { background: #fff; border: 1px solid #e5e3e1; border-radius: 23px; box-shadow: 0 2px 4px rgba(45, 40, 36, .02); overflow: auto; width: 100%; }
+.checkin-row { display: grid; grid-template-columns: 178px repeat(var(--day-count), 47px); min-width: max-content; }
+.checkin-row:not(:last-child) { border-bottom: 1px solid #e9e7e5; }
+.checkin-row > * { border-right: 1px solid #e9e7e5; }
+.checkin-row > *:last-child { border-right: 0; }
+.checkin-header { background: #faf9f7; min-height: 62px; }
+.habit-column { align-items: center; display: flex; gap: 9px; min-height: 62px; overflow: hidden; padding: 7px 12px; }
+.checkin-header .habit-column { color: #4d4945; font-size: 1.05rem; font-weight: 700; justify-content: center; }
+.day-column { align-items: center; color: #4d4945; display: flex; flex-direction: column; font-size: 1.05rem; font-weight: 700; justify-content: center; }
+.day-column small { color: #aaa7a4; font-size: .64rem; font-weight: 500; margin-top: 2px; }
+.day-column.weekend { color: #bbb9b7; }
+.habit-row-icon { flex: 0 0 auto; font-size: 1.35rem; }
+.habit-column strong { color: #4c4844; font-size: .95rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.day-cell { align-items: center; background: transparent; border: 0; cursor: pointer; display: flex; height: 62px; justify-content: center; padding: 0; width: 47px; }
+.day-cell span { align-items: center; border: 3px solid #efefee; border-radius: 50%; color: #57504a; display: flex; font-size: 1.05rem; height: 32px; justify-content: center; transition: .16s; width: 32px; }
+.day-cell:hover span { border-color: #d8cfca; transform: scale(1.05); }
+.day-cell.checked span { background: var(--check-color, #d8cbc4); border-color: var(--check-color, #d8cbc4); border-radius: 8px; }
+.checkin-empty { color: #aaa7a4; padding: 38px 18px; text-align: center; }
+.history-total { color: #c1bfbc; font-size: 1.2rem; padding: 22px 0 4px; text-align: center; }
+.history-total strong { color: #aaa7a4; font-weight: 500; margin-left: 10px; }
+.focus-page { align-items: center; display: flex; justify-content: center; min-height: 70vh; }
+.focus-empty { color: #8e8984; text-align: center; }
+.focus-empty > span { font-size: 3rem; }
+.focus-empty h1 { color: #4b4742; font-size: 1.7rem; margin: 14px 0 8px; }
+.focus-empty p { margin: 0; }
+.history-home ~ .bottom-nav, .app-shell > .bottom-nav { backdrop-filter: blur(20px); background: rgba(255,255,255,.86); border: 1px solid rgba(229, 227, 224, .9); border-radius: 40px; bottom: 16px; box-shadow: 0 8px 28px rgba(60, 55, 50, .12); height: 76px; left: 24px; margin: 0; max-width: none; padding: 9px 12px; right: 24px; }
+.app-shell > .bottom-nav .nav-item { border-radius: 28px; color: #85817c; flex: 1; font-size: 1.6rem; height: 56px; justify-content: center; max-width: none; padding: 0; }
+.app-shell > .bottom-nav .nav-item.active { background: #e9e8e6; color: #504c47; }
+.app-shell > .bottom-nav .nav-label { display: none; }
+@media (max-width: 560px) { .history-home { padding-left: 10px; padding-right: 10px; } .round-control { height: 52px; width: 52px; } .mode-switch button { font-size: 1rem; padding: 11px 15px; } .checkin-table { overflow: hidden; } .checkin-row { grid-template-columns: 132px repeat(var(--day-count), minmax(0, 1fr)); min-width: 0; } .day-cell { width: 100%; } .day-cell span { height: 25px; width: 25px; } .habit-column { gap: 4px; padding-left: 7px; padding-right: 5px; } .habit-row-icon { font-size: 1.05rem; } .habit-column strong { font-size: .78rem; } .checkin-header .habit-column, .day-column { font-size: .86rem; } .day-column small { font-size: .55rem; } }
