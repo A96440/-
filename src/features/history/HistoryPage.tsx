@@ -60,11 +60,6 @@ export function HistoryPage() {
   }
 
   return <section className="page history-home">
-    <header className="history-topbar">
-      <button aria-label="快捷功能" className="round-control sparkle-control" type="button">✦</button>
-      <div aria-label="当前模式：习惯" className="mode-switch single-mode"><span>🌿</span><strong>习惯</strong></div>
-      <button aria-label="更多设置" className="round-control more-control" type="button">•••</button>
-    </header>
     <div className="period-switch" role="tablist" aria-label="查看周期">{(['day', 'week', 'month', 'year'] as const).map((item) => <button className={period === item ? 'selected' : ''} key={item} onClick={() => setPeriod(item)} role="tab" type="button">{item === 'day' ? '日' : item === 'week' ? '周' : item === 'month' ? '月' : '年'}</button>)}</div>
     <div className="history-date-nav"><button aria-label="上一个周期" onClick={() => move(-1)} type="button">‹</button><strong>{formatRange(dates)}</strong><button aria-label="下一个周期" onClick={() => move(1)} type="button">›</button></div>
     <div className="history-heading"><div><h1><span aria-hidden="true">▣</span> 打卡表</h1><p>{formatLongRange(dates)}</p></div><button className="filter-control" type="button">☷ <span>全部</span></button></div>
