@@ -19,6 +19,7 @@ function periodDates(period: Period, anchor: Date) {
 }
 function formatRange(dates: Date[], period: Period) {
   if (period === 'year') return dates[0].getFullYear() + '年'
+  if (period === 'month') return dates[0].getFullYear() + '年' + (dates[0].getMonth() + 1) + '月'
   if (period === 'day') return dates[0].getMonth() + 1 + '月' + dates[0].getDate() + '日 星期' + dayLabels[(dates[0].getDay() + 6) % 7]
   if (dates.length === 1) return dates[0].getMonth() + 1 + '月' + dates[0].getDate() + '日'
   const start = dates[0]
@@ -48,7 +49,7 @@ export function HistoryPage() {
     const next = cloneDate(anchor)
     if (period === 'day') next.setDate(next.getDate() + direction)
     if (period === 'week') next.setDate(next.getDate() + direction * 7)
-    if (period === 'month') next.setMonth(next.getMonth() + direction)
+    if (period === 'month') { next.setDate(1); next.setMonth(next.getMonth() + direction) }
     if (period === 'year') next.setFullYear(next.getFullYear() + direction)
     setAnchor(next)
   }
