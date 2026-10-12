@@ -17,17 +17,20 @@ function periodDates(period: Period, anchor: Date) {
   if (period === 'day') return [cloneDate(anchor)]
   if (period === 'week') return getWeekDates(anchor)
   if (period === 'month') return getMonthDates(anchor)
+  if (period === 'year') return [new Date(anchor.getFullYear(), 0, 1), new Date(anchor.getFullYear(), 11, 31)]
   return []
 }
 
-function formatRange(dates: Date[]) {
+function formatRange(dates: Date[], period: Period) {
+  if (period === 'year') return dates[0].getFullYear() + '年'
   if (dates.length === 1) return dates[0].getMonth() + 1 + '月' + dates[0].getDate() + '日'
   const start = dates[0]
   const end = dates[dates.length - 1]
   return (start.getMonth() + 1) + '月' + start.getDate() + '日—' + (end.getMonth() + 1) + '月' + end.getDate() + '日'
 }
 
-function formatLongRange(dates: Date[]) {
+function formatLongRange(dates: Date[], period: Period) {
+  if (period === 'year') return dates[0].getFullYear() + ' 全年'
   const start = dates[0]
   const end = dates[dates.length - 1]
   const format = (date: Date) => date.getFullYear() + '/' + (date.getMonth() + 1) + '/' + date.getDate()
@@ -43,7 +46,7 @@ export function HistoryPage() {
   const enabledHabits = habits.filter((habit) => habit.enabled)
   const completed = new Set(checks.filter((check) => check.completed).map((check) => check.habitId + ':' + check.date))
   const visibleHabitIds = new Set(enabledHabits.map((habit) => habit.id))
-  const total = checks.filter((check) => check.completed && visibleHabitIds.has(check.habitId) && dates.some((date) => dateKey(date) === check.date)).length
+  const total = period === 'year' ? checks.filter((check) => check.completed && visibleHabitIds.has(check.habitId) && check.date.startsWith(String(anchor.getFullYear()))).length : checks.filter((check) => check.completed && visibleHabitIds.has(check.habitId) && dates.some((date) => dateKey(date) === check.date)).length
 
   function move(direction: number) {
     const next = cloneDate(anchor)
@@ -61,8 +64,8 @@ export function HistoryPage() {
 
   return <section className="page history-home">
     <div className="period-switch" role="tablist" aria-label="查看周期">{(['day', 'week', 'month', 'year'] as const).map((item) => <button className={period === item ? 'selected' : ''} key={item} onClick={() => setPeriod(item)} role="tab" type="button">{item === 'day' ? '日' : item === 'week' ? '周' : item === 'month' ? '月' : '年'}</button>)}</div>
-    <div className="history-date-nav"><button aria-label="上一个周期" onClick={() => move(-1)} type="button">‹</button><strong>{formatRange(dates)}</strong><button aria-label="下一个周期" onClick={() => move(1)} type="button">›</button></div>
-    <div className="history-heading"><div><h1><span aria-hidden="true">▣</span> 打卡表</h1><p>{formatLongRange(dates)}</p></div><button className="filter-control" type="button">☷ <span>全部</span></button></div>
+    <div className="history-date-nav"><button aria-label="上一个周期" onClick={() => move(-1)} type="button">‹</button><strong>{formatRange(dates, period)}</strong><button aria-label="下一个周期" onClick={() => move(1)} type="button">›</button></div>
+    <div className="history-heading"><div><h1><span aria-hidden="true" className="history-title-icon"><svg viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="16" rx="2" /><path d="M7.5 4.5v-2M16.5 4.5v-2M3.5 9h17M7 17v-3M12 17v-5M17 17v-8" /></svg></span> 打卡表</h1><p>{formatLongRange(dates, period)}</p></div><button className="filter-control" type="button">☷ <span>全部</span></button></div>
     {period === 'day' || period === 'week' ? <MatrixTable dates={dates} habits={enabledHabits} completed={completed} onToggle={toggle} /> : period === 'month' ? <MonthSummary dates={dates} habits={enabledHabits} completed={completed} total={total} /> : <YearSummary year={anchor.getFullYear()} checks={checks} total={total} />}
     <div className="history-total">总计： <strong>{total}</strong></div>
   </section>

@@ -105,6 +105,8 @@ h2 { color: #718178; font-size: .86rem; font-weight: 600; margin-bottom: 10px; }
 .cycle-panel { background: #faf8f3; border: 1px solid #eee9df; border-radius: 20px; display: grid; gap: 16px; padding: 16px 13px; }
 .cycle-title { align-items: baseline; display: flex; justify-content: space-between; }
 .cycle-title span { color: #4b4742; font-size: 1rem; font-weight: 700; }
+.cycle-title .cycle-icon { align-items: center; display: inline-flex; gap: 7px; }
+.cycle-icon svg { fill: none; height: 21px; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.8; width: 21px; }
 .cycle-title small, .cycle-section-title span { color: #9a958e; font-size: .78rem; }
 .cycle-tabs { background: #f1eee8; border-radius: 13px; display: flex; gap: 3px; overflow-x: auto; padding: 4px; }
 .cycle-tabs button { background: transparent; border: 0; border-radius: 10px; color: #8b857d; cursor: pointer; flex: 1 0 auto; font-size: .78rem; padding: 10px 11px; white-space: nowrap; }
@@ -116,6 +118,8 @@ h2 { color: #718178; font-size: .86rem; font-weight: 600; margin-bottom: 10px; }
 .quick-days button, .count-grid button, .month-day-grid button { background: #fffdf8; border: 1px solid transparent; border-radius: 12px; color: #777168; cursor: pointer; font-size: .82rem; padding: 10px 5px; }
 .quick-days button:hover, .count-grid button:hover, .month-day-grid button:hover { border-color: #b9b0a5; }
 .cycle-note { color: #918b83; font-size: .82rem; }
+.cycle-note { align-items: center; display: flex; gap: 7px; }
+.cycle-note svg { fill: none; height: 19px; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.7; width: 19px; }
 .count-grid { display: grid; gap: 7px; grid-template-columns: repeat(7, 1fr); }
 .count-grid button { font-size: .92rem; font-weight: 700; padding: 11px 4px; }
 .count-grid button.selected, .month-day-grid button.selected { background: #514d48; color: #fff; }
@@ -151,6 +155,8 @@ h2 { color: #718178; font-size: .86rem; font-weight: 600; margin-bottom: 10px; }
 .history-heading { align-items: center; display: flex; justify-content: space-between; margin: 0 8px 18px; }
 .history-heading h1 { color: #4b4742; font-size: 1.55rem; letter-spacing: -.04em; }
 .history-heading h1 span { font-size: 1.2rem; margin-right: 5px; }
+.history-title-icon { display: inline-flex; vertical-align: -3px; }
+.history-title-icon svg { fill: none; height: 25px; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.8; width: 25px; }
 .history-heading p { color: #bbb9b7; font-size: .95rem; margin: 8px 0 0; }
 .filter-control { background: #f8f7f5; border: 0; border-radius: 22px; color: #57534f; cursor: pointer; font-size: 1rem; padding: 10px 15px; }
 .filter-control span { margin-left: 4px; }
