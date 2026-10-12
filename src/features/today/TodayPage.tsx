@@ -1,10 +1,11 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { CSSProperties } from 'react'
 import { Link } from 'react-router-dom'
 import { db } from '../../db/db'
 import { setCheck } from '../../db/repositories'
 import { dateKey, isHabitDueOnDate, startOfWeek } from '../../domain/schedule'
+import { notifyPending } from '../../services/reminderService'
 
 const weekday = new Intl.DateTimeFormat('zh-CN', { weekday: 'long' })
 const dateLabel = new Intl.DateTimeFormat('zh-CN', { month: 'long', day: 'numeric' })
@@ -15,17 +16,26 @@ export function TodayPage() {
   const allHabits = useLiveQuery(() => db.habits.orderBy('createdAt').toArray(), [], [])
   const checks = useLiveQuery(() => db.checkRecords.toArray(), [], [])
   const todayChecks = checks.filter((check) => check.date === todayKey)
-  const completed = new Set(todayChecks.filter((check) => check.completed).map((check) => check.habitId))
+  const todayCompleted = new Set(todayChecks.filter((check) => check.completed).map((check) => check.habitId))
   const weekStart = dateKey(startOfWeek(today))
   const monthPrefix = todayKey.slice(0, 7)
   const habits = allHabits.filter((habit) => {
     const completedInPeriod = habit.scheduleType === 'weeklyCount'
-      ? checks.filter((check) => check.habitId === habit.id && check.completed && check.date >= weekStart).length
+      ? checks.filter((check) => check.habitId === habit.id && check.completed && check.date >= weekStart && check.date <= todayKey).length
       : habit.scheduleType === 'monthlyCount'
         ? checks.filter((check) => check.habitId === habit.id && check.completed && check.date.startsWith(monthPrefix)).length
         : 0
-    return isHabitDueOnDate(habit, today, completedInPeriod)
+    return todayCompleted.has(habit.id) || isHabitDueOnDate(habit, today, completedInPeriod)
   })
+  const completed = new Set(habits.filter((habit) => todayCompleted.has(habit.id)).map((habit) => habit.id))
+  const reminderSetting = useLiveQuery(() => db.settings.get('reminders'), [], undefined) as { value?: boolean } | undefined
+  const notifiedDate = useRef('')
+  useEffect(() => {
+    if (reminderSetting?.value && habits.length > 0 && notifiedDate.current !== todayKey) {
+      notifyPending(habits.length - completed.size)
+      notifiedDate.current = todayKey
+    }
+  }, [completed.size, habits.length, reminderSetting?.value, todayKey])
   const contexts = [...new Set(habits.map((habit) => habit.context))]
 
   async function toggleTask(habitId: string) {

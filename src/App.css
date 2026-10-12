@@ -92,6 +92,9 @@ h2 { color: #718178; font-size: .86rem; font-weight: 600; margin-bottom: 10px; }
 .choice-grid { display: flex; flex-wrap: wrap; gap: 8px; }
 .choice { background: #fafcf9; border: 1px solid #e1e9e1; border-radius: 11px; cursor: pointer; font-size: 1.25rem; height: 42px; width: 42px; }
 .choice.selected, .color-choice.selected { border-color: #527d5c; box-shadow: 0 0 0 3px #e1efe3; }
+.weekday-grid { display: grid; gap: 8px; grid-template-columns: repeat(7, 1fr); }
+.weekday { background: #fafcf9; border: 1px solid #e1e9e1; border-radius: 10px; color: #718178; cursor: pointer; padding: 10px 4px; }
+.weekday.selected { background: #dcebdd; border-color: #6d9875; color: #45634d; font-weight: 600; }
 .color-grid { display: flex; gap: 12px; }
 .color-choice { border: 2px solid #fff; border-radius: 50%; cursor: pointer; height: 30px; width: 30px; }
 .habit-form input, .habit-form select { background: #fafcf9; border: 1px solid #e1e9e1; border-radius: 11px; color: #34463a; outline: 0; padding: 12px; }

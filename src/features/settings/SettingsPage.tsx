@@ -1,5 +1,5 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { ChangeEvent } from 'react'
 import { db } from '../../db/db'
 import { setSetting } from '../../db/repositories'
@@ -15,6 +15,10 @@ export function SettingsPage() {
   const [status, setStatus] = useState('')
   const theme = themeSetting?.value ?? themes[0].value
   const remindersEnabled = reminderSetting?.value ?? false
+
+  useEffect(() => {
+    document.documentElement.style.setProperty('--accent', theme)
+  }, [theme])
 
   async function handleImport(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0]
