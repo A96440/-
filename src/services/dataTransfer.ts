@@ -10,8 +10,11 @@ export async function downloadBackup(): Promise<void> {
   const json = JSON.stringify(data, null, 2)
   const fileName = `xiaorizi-backup-${data.exportedAt.replaceAll(':', '-').replace('T', '_').replace('Z', '')}.json`
   const file = new File([json], fileName, { type: 'application/json' })
-  if (navigator.share && navigator.canShare?.({ files: [file] })) {
-    try { await navigator.share({ title: '小日常数据备份', files: [file] }); return } catch (error) {
+  if (navigator.share) {
+    try {
+      await navigator.share({ title: '小日常数据备份', files: [file] })
+      return
+    } catch (error) {
       if (error instanceof DOMException && error.name === 'AbortError') return
     }
   }

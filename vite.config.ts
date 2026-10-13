@@ -32,6 +32,6 @@ export default defineConfig({
         { src: `${base}icon-512.svg`, sizes: '512x512', type: 'image/svg+xml' },
       ],
     },
-    workbox: { globPatterns: ['**/*.{js,css,html,ico,svg,png}'], cleanupOutdatedCaches: true },
+    workbox: { globPatterns: ['**/*.{js,css,html,ico,svg,png}'], cleanupOutdatedCaches: true, skipWaiting: true, clientsClaim: true },
   }), safariAssetCompatibility],
 })
