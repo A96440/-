@@ -3,7 +3,7 @@ export async function requestNotificationPermission(): Promise<NotificationPermi
   return Notification.requestPermission()
 }
 
-export function notifyPending(count: number): void {
-  if (count < 1 || !('Notification' in window) || Notification.permission !== 'granted') return
-  new Notification('小日常提醒', { body: `今天还有 ${count} 个习惯没有完成`, tag: 'xiaorizi-pending' })
+export function notifyHabit(name: string, time: string): void {
+  if (!('Notification' in window) || Notification.permission !== 'granted') return
+  new Notification(`该完成：${name}`, { body: `${time} 的习惯提醒`, tag: `xiaorizi-habit-${name}` })
 }

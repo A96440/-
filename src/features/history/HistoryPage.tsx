@@ -37,12 +37,15 @@ function formatLongRange(dates: Date[], period: Period) {
 export function HistoryPage() {
   const [period, setPeriod] = useState<Period>('week')
   const [anchor, setAnchor] = useState(() => new Date())
+  const [contextFilter, setContextFilter] = useState('全部')
   const habits = useLiveQuery(() => db.habits.orderBy('createdAt').toArray(), [], []) as Habit[]
   const checks = useLiveQuery(() => db.checkRecords.toArray(), [], []) as CheckRecord[]
   const dates = periodDates(period, anchor)
   const enabledHabits = habits.filter((habit) => habit.enabled)
+  const contexts = ['全部', ...new Set(enabledHabits.map((habit) => habit.context))]
+  const visibleHabits = contextFilter === '全部' ? enabledHabits : enabledHabits.filter((habit) => habit.context === contextFilter)
   const completed = new Set(checks.filter((check) => check.completed).map((check) => check.habitId + ':' + check.date))
-  const visibleHabitIds = new Set(enabledHabits.map((habit) => habit.id))
+  const visibleHabitIds = new Set(visibleHabits.map((habit) => habit.id))
   const total = period === 'year'
     ? checks.filter((check) => check.completed && visibleHabitIds.has(check.habitId) && check.date.startsWith(String(anchor.getFullYear()))).length
     : checks.filter((check) => check.completed && visibleHabitIds.has(check.habitId) && dates.some((date) => dateKey(date) === check.date)).length
@@ -62,8 +65,9 @@ export function HistoryPage() {
   return <section className="page history-home">
     <div className="period-switch" role="tablist" aria-label="查看周期">{(['day', 'week', 'month', 'year'] as const).map((item) => <button className={period === item ? 'selected' : ''} key={item} onClick={() => setPeriod(item)} role="tab" aria-selected={period === item} type="button">{item === 'day' ? '日' : item === 'week' ? '周' : item === 'month' ? '月' : '年'}</button>)}</div>
     <div className="history-date-nav"><button aria-label="上一个周期" onClick={() => move(-1)} type="button">‹</button><strong>{formatRange(dates, period)}</strong><button aria-label="下一个周期" onClick={() => move(1)} type="button">›</button></div>
-    <div className="history-heading"><div><h1><span aria-hidden="true" className="history-title-icon"><svg viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="16" rx="2" /><path d="M7.5 4.5v-2M16.5 4.5v-2M3.5 9h17M7 17v-3M12 17v-5M17 17v-8" /></svg></span> 打卡表</h1><p>{formatLongRange(dates, period)}</p></div><span className="filter-control">全部习惯</span></div>
-    {period === 'day' ? <DayTimeline date={dates[0]} habits={enabledHabits} checks={checks} /> : period === 'week' ? <MatrixTable dates={dates} habits={enabledHabits} completed={completed} onToggle={toggle} /> : period === 'month' ? <MonthSummary date={dates[0]} habits={enabledHabits} completed={completed} onToggle={toggle} /> : <YearSummary year={anchor.getFullYear()} habits={enabledHabits} completed={completed} />}
+    <div className="history-heading"><div><h1><span aria-hidden="true" className="history-title-icon"><svg viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="16" rx="2" /><path d="M7.5 4.5v-2M16.5 4.5v-2M3.5 9h17M7 17v-3M12 17v-5M17 17v-8" /></svg></span> 打卡表</h1><p>{formatLongRange(dates, period)}</p></div><span className="filter-control">{contextFilter === '全部' ? '全部情景' : contextFilter}</span></div>
+    <div aria-label="情景筛选" className="history-context-filter" role="tablist">{contexts.map((context) => <button aria-selected={contextFilter === context} className={contextFilter === context ? 'selected' : ''} key={context} onClick={() => setContextFilter(context)} role="tab" type="button">{context}</button>)}</div>
+    {period === 'day' ? <DayTimeline date={dates[0]} habits={visibleHabits} checks={checks} /> : period === 'week' ? <MatrixTable dates={dates} habits={visibleHabits} completed={completed} onToggle={toggle} /> : period === 'month' ? <MonthSummary date={dates[0]} habits={visibleHabits} completed={completed} onToggle={toggle} /> : <YearSummary year={anchor.getFullYear()} habits={visibleHabits} completed={completed} />}
     <div className="history-total">总计： <strong>{total}</strong></div>
   </section>
 }

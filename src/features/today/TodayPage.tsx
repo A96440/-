@@ -1,20 +1,34 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useEffect, useRef, useState } from 'react'
-import type { CSSProperties } from 'react'
+import type { CSSProperties, KeyboardEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { db } from '../../db/db'
-import { setCheck } from '../../db/repositories'
+import { addQuantity, setCheck } from '../../db/repositories'
 import { dateKey, isHabitDueOnDate, startOfWeek } from '../../domain/schedule'
-import { notifyPending } from '../../services/reminderService'
+import { notifyHabit } from '../../services/reminderService'
+import type { Habit } from '../../domain/types'
 
 const weekday = new Intl.DateTimeFormat('zh-CN', { weekday: 'long' })
 const dateLabel = new Intl.DateTimeFormat('zh-CN', { month: 'long', day: 'numeric' })
+const contextOrder = ['起床', '晨间', '上午', '中午', '午间', '下午', '晚间', '晚上', '睡前', '全天']
+
+function reminderMatches(habit: Habit, day: number) {
+  if (habit.reminderRepeat === 'workdays') return day >= 1 && day <= 5
+  if (habit.reminderRepeat === 'weekends') return day === 0 || day === 6
+  if (habit.reminderRepeat === 'custom') return habit.reminderWeekdays?.includes(day) ?? false
+  return true
+}
+
+function unitLabel(habit: Habit) {
+  return habit.quantityUnit === 'custom' ? habit.quantityCustomUnit || '次' : habit.quantityUnit || '次'
+}
 
 export function TodayPage() {
   const [today] = useState(() => new Date())
   const todayKey = dateKey(today)
-  const allHabits = useLiveQuery(() => db.habits.orderBy('createdAt').toArray(), [], [])
+  const allHabits = useLiveQuery(() => db.habits.orderBy('createdAt').toArray(), [], []) as Habit[]
   const checks = useLiveQuery(() => db.checkRecords.toArray(), [], [])
+  const quantities = useLiveQuery(() => db.quantityRecords.toArray(), [], [])
   const todayChecks = checks.filter((check) => check.date === todayKey)
   const todayCompleted = new Set(todayChecks.filter((check) => check.completed).map((check) => check.habitId))
   const weekStart = dateKey(startOfWeek(today))
@@ -28,22 +42,56 @@ export function TodayPage() {
     return todayCompleted.has(habit.id) || isHabitDueOnDate(habit, today, completedInPeriod)
   })
   const completed = new Set(habits.filter((habit) => todayCompleted.has(habit.id)).map((habit) => habit.id))
-  const reminderSetting = useLiveQuery(() => db.settings.get('reminders'), [], undefined) as { value?: boolean } | undefined
-  const notifiedDate = useRef('')
+  const reminded = useRef(new Set<string>())
+
   useEffect(() => {
-    if (reminderSetting?.value && habits.length > 0 && notifiedDate.current !== todayKey) {
-      notifyPending(habits.length - completed.size)
-      notifiedDate.current = todayKey
+    function checkReminders() {
+      const now = new Date()
+      const time = now.toTimeString().slice(0, 5)
+      const day = now.getDay()
+      habits.filter((habit) => habit.reminderEnabled && habit.reminderTime === time && reminderMatches(habit, day)).forEach((habit) => {
+        const key = `${habit.id}:${todayKey}:${time}`
+        if (!reminded.current.has(key)) { notifyHabit(habit.name, time); reminded.current.add(key) }
+      })
     }
-  }, [completed.size, habits.length, reminderSetting?.value, todayKey])
-  const contexts = [...new Set(habits.map((habit) => habit.context))]
+    checkReminders()
+    const timer = window.setInterval(checkReminders, 30_000)
+    return () => window.clearInterval(timer)
+  }, [habits, todayKey])
 
   async function toggleTask(habitId: string) {
     await setCheck(habitId, today, !completed.has(habitId))
   }
 
+  async function addHabitQuantity(habit: Habit) {
+    const record = await addQuantity(habit.id, habit.quantityIncrement ?? 1, today)
+    if (habit.quantityDailyTarget && record.amount >= habit.quantityDailyTarget) await setCheck(habit.id, today, true)
+  }
+
+  function handleTaskKey(event: KeyboardEvent<HTMLElement>, habitId: string) {
+    if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); void toggleTask(habitId) }
+  }
+
+  const pendingHabits = habits.filter((habit) => !completed.has(habit.id))
+  const completedHabits = habits.filter((habit) => completed.has(habit.id))
+  const contexts = [...new Set(pendingHabits.map((habit) => habit.context))].sort((a, b) => (contextOrder.indexOf(a) + 1 || 99) - (contextOrder.indexOf(b) + 1 || 99))
+  const quantityMap = new Map(quantities.filter((record) => record.date === todayKey).map((record) => [record.habitId, record.amount]))
+  const renderHabit = (habit: Habit, isCompleted: boolean) => {
+    const amount = quantityMap.get(habit.id) ?? 0
+    const unit = unitLabel(habit)
+    return <article className={'task-card' + (isCompleted ? ' completed' : '')} key={habit.id} onClick={() => void toggleTask(habit.id)} onKeyDown={(event) => handleTaskKey(event, habit.id)} role="button" style={isCompleted ? { '--task-color': habit.color } as CSSProperties : undefined} tabIndex={0}>
+      <span className="task-icon">{habit.icon}</span><span className="task-name">{habit.name}</span>
+      {habit.quantityEnabled && <span className="quantity-progress">{amount}{habit.quantityDailyTarget ? `/${habit.quantityDailyTarget}` : ''}{unit}</span>}
+      {habit.quantityEnabled && <button aria-label={`${habit.name} 增加 ${habit.quantityIncrement ?? 1}${unit}`} className="quantity-add" onClick={(event) => { event.stopPropagation(); void addHabitQuantity(habit) }} type="button">＋{habit.quantityIncrement ?? 1}</button>}
+      <span aria-hidden="true" className="task-check">{isCompleted ? '✓' : '○'}</span>
+    </article>
+  }
+
   return <section className="page today-page">
     <header className="page-header today-header"><div><p className="eyebrow">{dateLabel.format(today)}</p><h1>今天，{weekday.format(today)}</h1></div><Link className="icon-button" title="添加习惯" to="/habits/new">＋</Link></header>
-    {habits.length === 0 ? <div className="empty-state"><span>🌱</span><h2>今天还没有安排</h2><p>添加一个想坚持的小事情吧。</p><Link className="primary-button" to="/habits/new">添加习惯</Link></div> : <><div className="today-summary"><span>今日进度</span><strong>{completed.size} / {habits.length}</strong></div><div className="task-groups">{contexts.map((context) => <section className="task-group" key={context}><h2>{context}</h2><div className="task-list">{habits.filter((habit) => habit.context === context).map((habit) => { const isCompleted = completed.has(habit.id); return <button className={"task-card" + (isCompleted ? " completed" : "")} key={habit.id} onClick={() => toggleTask(habit.id)} style={isCompleted ? { '--task-color': habit.color } as CSSProperties : undefined} type="button"><span className="task-icon">{habit.icon}</span><span className="task-name">{habit.name}</span><span aria-hidden="true" className="task-check">{isCompleted ? '✓' : '○'}</span></button> })}</div></section>)}</div></>}
+    {habits.length === 0 ? <div className="empty-state"><span>🌱</span><h2>今天还没有安排</h2><p>添加一个想坚持的小事情吧。</p><Link className="primary-button" to="/habits/new">添加习惯</Link></div> : <>
+      <div className="task-groups">{contexts.map((context) => <section className="task-group" key={context}><h2>{context}</h2><div className="task-list">{pendingHabits.filter((habit) => habit.context === context).map((habit) => renderHabit(habit, false))}</div></section>)}</div>
+      {completedHabits.length > 0 && <section className="completed-section"><div className="completed-heading"><h2>已完成</h2><span>{completedHabits.length} 项</span></div><div className="task-list">{completedHabits.map((habit) => renderHabit(habit, true))}</div></section>}
+    </>}
   </section>
 }

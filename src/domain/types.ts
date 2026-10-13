@@ -1,6 +1,9 @@
 export type ScheduleType = 'daily' | 'weeklyDays' | 'weeklyCount' | 'monthlyDate' | 'monthlyCount'
 
 export type ScheduleConfig = { weekdays?: number[]; count?: number; day?: number }
+export type ReminderMode = 'gentle'
+export type ReminderRepeat = 'daily' | 'workdays' | 'weekends' | 'custom'
+export type QuantityUnit = 'custom' | '次' | '杯' | '毫升' | '分钟' | '小时' | '公里' | '米' | '步' | '页' | '组' | '颗'
 
 export type Habit = {
   id: string
@@ -11,6 +14,16 @@ export type Habit = {
   scheduleType: ScheduleType
   scheduleConfig: ScheduleConfig
   reminderTime?: string
+  reminderEnabled?: boolean
+  reminderMode?: ReminderMode
+  reminderRepeat?: ReminderRepeat
+  reminderWeekdays?: number[]
+  reminderCustomUnit?: string
+  quantityEnabled?: boolean
+  quantityUnit?: QuantityUnit
+  quantityCustomUnit?: string
+  quantityIncrement?: number
+  quantityDailyTarget?: number
   enabled: boolean
   createdAt: string
   updatedAt: string
@@ -24,6 +37,14 @@ export type CheckRecord = {
   completedAt?: string
 }
 
+export type QuantityRecord = {
+  id: string
+  habitId: string
+  date: string
+  amount: number
+  updatedAt: string
+}
+
 export type AppSetting = {
   key: string
   value: unknown
@@ -34,5 +55,6 @@ export type ExportData = {
   exportedAt: string
   habits: Habit[]
   checkRecords: CheckRecord[]
+  quantityRecords: QuantityRecord[]
   settings: AppSetting[]
 }

@@ -1,5 +1,5 @@
 import { db } from './db'
-import type { CheckRecord, Habit } from '../domain/types'
+import type { CheckRecord, Habit, QuantityRecord } from '../domain/types'
 import { dateKey } from '../domain/schedule'
 
 const newId = () => crypto.randomUUID()
@@ -25,10 +25,27 @@ export async function createHabit(input: Omit<Habit, 'id' | 'createdAt' | 'updat
 }
 
 export async function deleteHabit(id: string): Promise<void> {
-  await db.transaction('rw', db.habits, db.checkRecords, async () => {
+  await db.transaction('rw', db.habits, db.checkRecords, db.quantityRecords, async () => {
     await db.habits.delete(id)
     await db.checkRecords.where('habitId').equals(id).delete()
+    await db.quantityRecords.where('habitId').equals(id).delete()
   })
+}
+
+export async function addQuantity(habitId: string, amount: number, date = new Date()): Promise<QuantityRecord> {
+  const key = dateKey(date)
+  const existing = await db.quantityRecords.where('[habitId+date]').equals([habitId, key]).first()
+  const record: QuantityRecord = { id: existing?.id ?? newId(), habitId, date: key, amount: Math.max(0, (existing?.amount ?? 0) + amount), updatedAt: new Date().toISOString() }
+  await db.quantityRecords.put(record)
+  return record
+}
+
+export async function setQuantity(habitId: string, amount: number, date = new Date()): Promise<QuantityRecord> {
+  const key = dateKey(date)
+  const existing = await db.quantityRecords.where('[habitId+date]').equals([habitId, key]).first()
+  const record: QuantityRecord = { id: existing?.id ?? newId(), habitId, date: key, amount: Math.max(0, amount), updatedAt: new Date().toISOString() }
+  await db.quantityRecords.put(record)
+  return record
 }
 
 export async function setCheck(habitId: string, date = new Date(), completed: boolean): Promise<CheckRecord> {

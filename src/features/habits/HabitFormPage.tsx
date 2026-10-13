@@ -4,7 +4,8 @@ import type { FormEvent } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { db } from '../../db/db'
 import { createHabit, deleteHabit, saveHabit } from '../../db/repositories'
-import type { Habit, ScheduleType } from '../../domain/types'
+import { requestNotificationPermission } from '../../services/reminderService'
+import type { Habit, QuantityUnit, ReminderRepeat, ScheduleType } from '../../domain/types'
 
 const colors = ['#b8d8ba', '#f4d5a6', '#d8c6e7', '#b8dce1', '#f1c2c2']
 const icons = ['🌱', '🪴', '🌿', '🌻', '🌸', '🍀', '🌷', '🌹', '🌼', '🪻', '🌾', '🍁', '🍂', '🌲', '🌳', '🎋', '☀️', '🌤️', '🌈', '🌙', '⭐', '✨', '❄️', '🌧️', '🧴', '🪥', '🧼', '🚿', '🛁', '💧', '🧹', '🧽', '🧺', '🧻', '🧯', '🪣', '🧰', '🔧', '🧷', '🪡', '🐈', '🐕', '🐾', '🦜', '🐠', '🐇', '🐢', '🦋', '🐝', '🐞', '🦄', '🏃', '🚶', '🧘', '🏋️', '🚴', '🏊', '🧗', '🤸', '⛹️', '🤾', '🧖', '🚶‍♀️', '📚', '✍️', '📝', '📖', '🎸', '🎨', '🎵', '🎬', '🎧', '🎤', '🎹', '🎮', '🎲', '🧩', '🎯', '🏆', '💰', '💳', '🛒', '🧾', '💊', '🩺', '🩹', '🧪', '🔬', '🥗', '🍎', '🍐', '🍊', '🍋', '🍌', '🍉', '🍓', '🥕', '🌽', '🍞', '🥛', '🍵', '☕', '🍜', '🍣', '🍪', '🧁', '🛌', '⏰', '📅', '🧠', '❤️', '✅', '🔥', '📱', '💻', '⌨️', '🖨️', '✈️', '🚗', '🚲', '🚌', '🚇', '🧳', '🗺️', '🏠', '🛋️', '🛏️', '🧸', '🎁', '🏕️', '🏖️']
@@ -32,13 +33,25 @@ function HabitFormFields({ existing, id }: { existing?: Habit; id?: string }) {
   const [scheduleDay, setScheduleDay] = useState(existing?.scheduleConfig.day ?? 1)
   const [icon, setIcon] = useState(existing?.icon ?? '🌱')
   const [color, setColor] = useState(existing?.color ?? colors[0])
+  const [reminderEnabled, setReminderEnabled] = useState(existing?.reminderEnabled ?? false)
+  const [reminderTime, setReminderTime] = useState(existing?.reminderTime ?? '20:00')
+  const [reminderRepeat, setReminderRepeat] = useState<ReminderRepeat>(existing?.reminderRepeat ?? 'daily')
+  const [reminderWeekdays, setReminderWeekdays] = useState<number[]>(existing?.reminderWeekdays ?? [1, 2, 3, 4, 5, 6, 0])
+  const [quantityEnabled, setQuantityEnabled] = useState(existing?.quantityEnabled ?? false)
+  const [quantityUnit, setQuantityUnit] = useState<QuantityUnit>(existing?.quantityUnit ?? '次')
+  const [quantityCustomUnit, setQuantityCustomUnit] = useState(existing?.quantityCustomUnit ?? '')
+  const [quantityIncrement, setQuantityIncrement] = useState(String(existing?.quantityIncrement ?? 1))
+  const [quantityDailyTarget, setQuantityDailyTarget] = useState(existing?.quantityDailyTarget ? String(existing.quantityDailyTarget) : '')
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     if (!name.trim() || (scheduleType === 'weeklyDays' && selectedWeekdays.length === 0)) return
     const scheduleConfig = scheduleType === 'weeklyDays' ? { weekdays: selectedWeekdays } : scheduleType === 'weeklyCount' || scheduleType === 'monthlyCount' ? { count: scheduleCount } : scheduleType === 'monthlyDate' ? { day: scheduleDay } : {}
-    if (existing) await saveHabit({ ...existing, name: name.trim(), context, scheduleType, scheduleConfig, icon, color, updatedAt: new Date().toISOString() })
-    else await createHabit({ name: name.trim(), context, scheduleType, scheduleConfig, icon, color, enabled: true })
+    const parsedIncrement = Math.max(0.01, Number(quantityIncrement) || 1)
+    const parsedTarget = quantityDailyTarget.trim() ? Math.max(0.01, Number(quantityDailyTarget) || 0) : undefined
+    const common = { name: name.trim(), context, scheduleType, scheduleConfig, icon, color, reminderEnabled, reminderTime, reminderMode: 'gentle' as const, reminderRepeat, reminderWeekdays: reminderRepeat === 'custom' ? reminderWeekdays : undefined, quantityEnabled, quantityUnit, quantityCustomUnit: quantityUnit === 'custom' ? quantityCustomUnit.trim() : undefined, quantityIncrement: parsedIncrement, quantityDailyTarget: parsedTarget }
+    if (existing) await saveHabit({ ...existing, ...common, updatedAt: new Date().toISOString() })
+    else await createHabit({ ...common, enabled: true })
     navigate('/habits')
   }
 
@@ -52,17 +65,41 @@ function HabitFormFields({ existing, id }: { existing?: Habit; id?: string }) {
     setSelectedWeekdays((current) => current.includes(day) ? current.filter((item) => item !== day) : [...current, day].sort())
   }
 
+  async function toggleReminder() {
+    if (!reminderEnabled) await requestNotificationPermission()
+    setReminderEnabled((value) => !value)
+  }
+
+  function toggleReminderWeekday(day: number) {
+    setReminderWeekdays((current) => current.includes(day) ? current.filter((item) => item !== day) : [...current, day].sort())
+  }
+
   return <section className="page form-page"><header className="page-header"><div><p className="eyebrow">{isEditing ? '调整一个习惯' : '从小事开始'}</p><h1>{isEditing ? '编辑习惯' : '新建习惯'}</h1></div><Link className="quiet-button" to="/habits">取消</Link></header><form className="habit-form" onSubmit={handleSubmit}>
     <label>名称<input autoFocus value={name} onChange={(event) => setName(event.target.value)} placeholder="例如：每日护肤" /></label>
     <fieldset><legend>图标</legend><div className="choice-grid">{icons.map((item) => <button className={item === icon ? 'choice selected' : 'choice'} key={item} onClick={() => setIcon(item)} type="button">{item}</button>)}</div></fieldset>
     <fieldset><legend>颜色</legend><div className="color-grid">{colors.map((item) => <button aria-label="选择颜色" className={item === color ? 'color-choice selected' : 'color-choice'} key={item} onClick={() => setColor(item)} style={{ backgroundColor: item }} type="button" />)}</div></fieldset>
     <label>场景<select onChange={(event) => setContext(event.target.value)} value={context}><option>全天</option><option>起床</option><option>晨间</option><option>中午</option><option>午间</option><option>晚间</option><option>睡前</option></select></label>
     <CyclePanel scheduleType={scheduleType} setScheduleType={setScheduleType} selectedWeekdays={selectedWeekdays} setSelectedWeekdays={setSelectedWeekdays} toggleWeekday={toggleWeekday} scheduleCount={scheduleCount} setScheduleCount={setScheduleCount} scheduleDay={scheduleDay} setScheduleDay={setScheduleDay} />
+    <ReminderPanel enabled={reminderEnabled} onToggle={toggleReminder} time={reminderTime} setTime={setReminderTime} repeat={reminderRepeat} setRepeat={setReminderRepeat} weekdays={reminderWeekdays} toggleWeekday={toggleReminderWeekday} />
+    <QuantityPanel enabled={quantityEnabled} setEnabled={setQuantityEnabled} unit={quantityUnit} setUnit={setQuantityUnit} customUnit={quantityCustomUnit} setCustomUnit={setQuantityCustomUnit} increment={quantityIncrement} setIncrement={setQuantityIncrement} target={quantityDailyTarget} setTarget={setQuantityDailyTarget} />
     <button className="primary-button full-width" disabled={!name.trim() || (scheduleType === 'weeklyDays' && selectedWeekdays.length === 0)} type="submit">保存习惯</button>{isEditing && <button className="danger-button" onClick={handleDelete} type="button">删除这个习惯</button>}
   </form></section>
 }
 
 function CyclePanel({ scheduleType, setScheduleType, selectedWeekdays, setSelectedWeekdays, toggleWeekday, scheduleCount, setScheduleCount, scheduleDay, setScheduleDay }: { scheduleType: ScheduleType; setScheduleType: (type: ScheduleType) => void; selectedWeekdays: number[]; setSelectedWeekdays: (days: number[]) => void; toggleWeekday: (day: number) => void; scheduleCount: number; setScheduleCount: (count: number) => void; scheduleDay: number; setScheduleDay: (day: number) => void }) {
   return <section className="cycle-panel"><div className="cycle-title"><span className="cycle-icon"><CycleIcon /> 循环模式</span><small>选择完成规则</small></div><div className="cycle-tabs">{cycleTabs.map((tab) => <button className={scheduleType === tab.type ? 'selected' : ''} key={tab.type} onClick={() => setScheduleType(tab.type)} type="button">{tab.label}</button>)}</div>{scheduleType === 'daily' && <div className="cycle-note"><LoopIcon /> 每天打卡</div>}{scheduleType === 'weeklyDays' && <><div className="cycle-section-title"><strong>选择打卡日</strong><span>已选 {selectedWeekdays.length} 天</span></div><div className="weekday-grid cycle-weekdays">{weekdays.map((label, index) => { const day = index + 1 > 6 ? 0 : index + 1; return <button className={selectedWeekdays.includes(day) ? 'weekday selected' : 'weekday'} key={label} onClick={() => toggleWeekday(day)} type="button">{label}</button> })}</div><div className="quick-days"><button onClick={() => setSelectedWeekdays([1, 2, 3, 4, 5, 6, 0])} type="button">每天</button><button onClick={() => setSelectedWeekdays([1, 2, 3, 4, 5])} type="button">工作日</button><button onClick={() => setSelectedWeekdays([6, 0])} type="button">周末</button></div><div className="cycle-note"><LoopIcon /> 每天打卡</div></>}{scheduleType === 'weeklyCount' && <><div className="cycle-section-title"><strong>每周打卡天数</strong><span>选择 1–7 天</span></div><div className="count-grid">{Array.from({ length: 7 }, (_, index) => index + 1).map((count) => <button className={scheduleCount === count ? 'selected' : ''} key={count} onClick={() => setScheduleCount(count)} type="button">{count}</button>)}</div><div className="cycle-note"><LoopIcon /> 每周完成任意 {scheduleCount} 天即可</div></>}{scheduleType === 'monthlyDate' && <><div className="cycle-section-title"><strong>选择打卡日</strong><span>已选 {scheduleDay} 日</span></div><div className="month-day-grid">{Array.from({ length: 31 }, (_, index) => index + 1).map((day) => <button className={scheduleDay === day ? 'selected' : ''} key={day} onClick={() => setScheduleDay(day)} type="button">{day}</button>)}</div><div className="cycle-note"><LoopIcon /> 每月 {scheduleDay} 日打卡</div></>}{scheduleType === 'monthlyCount' && <><div className="cycle-section-title"><strong>每月打卡天数</strong><span>自定义 1–31 天</span></div><div className="count-grid monthly-presets">{[5, 10, 15, 20, 25].map((count) => <button className={scheduleCount === count ? 'selected' : ''} key={count} onClick={() => setScheduleCount(count)} type="button">{count}</button>)}</div><div className="stepper-row"><span>自定义天数</span><div className="stepper"><button aria-label="减少天数" disabled={scheduleCount <= 1} onClick={() => setScheduleCount(Math.max(1, scheduleCount - 1))} type="button">−</button><strong>{scheduleCount}</strong><button aria-label="增加天数" disabled={scheduleCount >= 31} onClick={() => setScheduleCount(Math.min(31, scheduleCount + 1))} type="button">＋</button></div></div><div className="cycle-note"><LoopIcon /> 每月完成任意 {scheduleCount} 天即可</div></>}</section>
+}
+
+const reminderWeekdayLabels = ['一', '二', '三', '四', '五', '六', '日']
+const reminderRepeatLabels: { value: ReminderRepeat; label: string }[] = [{ value: 'daily', label: '每天' }, { value: 'workdays', label: '工作日' }, { value: 'weekends', label: '周末' }, { value: 'custom', label: '自定义' }]
+
+function ReminderPanel({ enabled, onToggle, time, setTime, repeat, setRepeat, weekdays: selectedWeekdays, toggleWeekday }: { enabled: boolean; onToggle: () => void; time: string; setTime: (value: string) => void; repeat: ReminderRepeat; setRepeat: (value: ReminderRepeat) => void; weekdays: number[]; toggleWeekday: (day: number) => void }) {
+  return <section className="reminder-panel"><div className="panel-heading"><span><span className="panel-icon">♧</span>提醒</span><button aria-pressed={enabled} className={`switch${enabled ? ' on' : ''}`} onClick={onToggle} type="button"><span /></button></div><div className="reminder-time-row"><label>提醒时间<input aria-label="提醒时间" onChange={(event) => setTime(event.target.value)} type="time" value={time} /></label><small>温柔提醒 · 通过系统通知</small></div><div className="repeat-block"><strong>重复周期</strong><div className="repeat-tabs">{reminderRepeatLabels.map((item) => <button className={repeat === item.value ? 'selected' : ''} key={item.value} onClick={() => setRepeat(item.value)} type="button">{item.label}</button>)}</div>{repeat === 'custom' && <div className="weekday-grid reminder-weekdays">{reminderWeekdayLabels.map((label, index) => { const day = index + 1 > 6 ? 0 : index + 1; return <button className={selectedWeekdays.includes(day) ? 'weekday selected' : 'weekday'} key={label} onClick={() => toggleWeekday(day)} type="button">{label}</button> })}</div>}</div></section>
+}
+
+const quantityUnits: { value: QuantityUnit; label: string }[] = [{ value: 'custom', label: '自定义' }, { value: '次', label: '次' }, { value: '杯', label: '杯' }, { value: '毫升', label: '毫升' }, { value: '分钟', label: '分钟' }, { value: '小时', label: '小时' }, { value: '公里', label: '公里' }, { value: '米', label: '米' }, { value: '步', label: '步' }, { value: '页', label: '页' }, { value: '组', label: '组' }, { value: '颗', label: '颗' }]
+
+function QuantityPanel({ enabled, setEnabled, unit, setUnit, customUnit, setCustomUnit, increment, setIncrement, target, setTarget }: { enabled: boolean; setEnabled: (value: boolean) => void; unit: QuantityUnit; setUnit: (value: QuantityUnit) => void; customUnit: string; setCustomUnit: (value: string) => void; increment: string; setIncrement: (value: string) => void; target: string; setTarget: (value: string) => void }) {
+  return <section className="quantity-panel"><div className="panel-heading"><span><span className="panel-icon">▥</span>量化记录</span><button aria-pressed={enabled} className={`switch${enabled ? ' on' : ''}`} onClick={() => setEnabled(!enabled)} type="button"><span /></button></div>{enabled ? <><label className="quantity-label">单位<div className="quantity-unit-grid">{quantityUnits.map((item) => <button className={unit === item.value ? 'selected' : ''} key={item.value} onClick={() => setUnit(item.value)} type="button">{item.label}</button>)}</div></label>{unit === 'custom' && <label className="quantity-custom-label">自定义单位<input maxLength={8} onChange={(event) => setCustomUnit(event.target.value)} placeholder="例如：粒" value={customUnit} /></label>}<div className="quantity-inputs"><label>每次增加<input min="0.01" onChange={(event) => setIncrement(event.target.value)} step="any" type="number" value={increment} /><span>{unit === 'custom' ? customUnit || '单位' : unit}</span></label><label>每日目标 <small>（可选）</small><input min="0.01" onChange={(event) => setTarget(event.target.value)} placeholder="—" step="any" type="number" value={target} /><span>{unit === 'custom' ? customUnit || '单位' : unit}</span></label></div><p className="quantity-hint">点击首页“＋”按钮，增加 {increment || 1}{unit === 'custom' ? customUnit || '单位' : unit}</p></> : <p className="quantity-disabled-note">当前只记录完成状态</p>}</section>
 }
 
