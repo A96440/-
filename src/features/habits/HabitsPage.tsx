@@ -12,6 +12,8 @@ function scheduleLabel(habit: Habit): string {
   if (habit.scheduleType === 'weeklyCount') return '每周' + (habit.scheduleConfig.count ?? 1) + '天'
   if (habit.scheduleType === 'monthlyCount') return '每月' + (habit.scheduleConfig.count ?? 1) + '天'
   if (habit.scheduleType === 'monthlyDate') return '每月固定' + (habit.scheduleConfig.day ?? 1) + '日'
+  if (habit.scheduleType === 'intervalMonths') return '每' + (habit.scheduleConfig.intervalMonths ?? 3) + '个月一次'
+  if (habit.scheduleType === 'yearlyCount') return '每年' + (habit.scheduleConfig.count ?? 1) + '次'
   const count = habit.scheduleConfig.weekdays?.length ?? 0
   return count === 7 ? '每周每天' : '每周' + count + '天'
 }

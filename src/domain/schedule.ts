@@ -21,7 +21,23 @@ export function isHabitDueOnDate(habit: Habit, date: Date, completedInPeriod = 0
   const config = habit.scheduleConfig
   if (habit.scheduleType === 'daily') return true
   if (habit.scheduleType === 'weeklyCount' || habit.scheduleType === 'monthlyCount') return completedInPeriod < (config.count ?? 1)
+  if (habit.scheduleType === 'yearlyCount') return completedInPeriod < (config.count ?? 1)
   if (habit.scheduleType === 'weeklyDays') return config.weekdays?.includes(date.getDay()) ?? false
+  if (habit.scheduleType === 'intervalMonths') {
+    const created = new Date(habit.createdAt)
+    if (Number.isNaN(created.getTime())) return false
+    const monthDelta = (date.getFullYear() - created.getFullYear()) * 12 + date.getMonth() - created.getMonth()
+    const interval = Math.max(1, config.intervalMonths ?? 3)
+    if (monthDelta < 0) return false
+    if (completedInPeriod > 0) return false
+    const cycleIndex = Math.floor(monthDelta / interval)
+    const cycleMonth = created.getMonth() + cycleIndex * interval
+    const requestedDay = config.day ?? created.getDate()
+    const cycleStart = new Date(created.getFullYear(), cycleMonth, Math.min(requestedDay, daysInMonth(created.getFullYear(), cycleMonth)))
+    const nextCycleMonth = cycleMonth + interval
+    const nextCycleStart = new Date(created.getFullYear(), nextCycleMonth, Math.min(requestedDay, daysInMonth(created.getFullYear(), nextCycleMonth)))
+    return date >= cycleStart && date < nextCycleStart
+  }
   const requestedDay = config.day ?? 1
   return date.getDate() === Math.min(requestedDay, daysInMonth(date.getFullYear(), date.getMonth()))
 }

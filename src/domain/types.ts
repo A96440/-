@@ -1,6 +1,6 @@
-export type ScheduleType = 'daily' | 'weeklyDays' | 'weeklyCount' | 'monthlyDate' | 'monthlyCount'
+export type ScheduleType = 'daily' | 'weeklyDays' | 'weeklyCount' | 'monthlyDate' | 'monthlyCount' | 'intervalMonths' | 'yearlyCount'
 
-export type ScheduleConfig = { weekdays?: number[]; count?: number; day?: number }
+export type ScheduleConfig = { weekdays?: number[]; count?: number; day?: number; intervalMonths?: number }
 export type ReminderMode = 'gentle'
 export type ReminderRepeat = 'daily' | 'workdays' | 'weekends' | 'custom'
 export type QuantityUnit = 'custom' | '次' | '杯' | '毫升' | '分钟' | '小时' | '公里' | '米' | '步' | '页' | '组' | '颗'

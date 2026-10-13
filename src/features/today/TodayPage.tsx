@@ -4,7 +4,7 @@ import type { CSSProperties, KeyboardEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { db } from '../../db/db'
 import { addQuantity, setCheck } from '../../db/repositories'
-import { dateKey, isHabitDueOnDate, startOfWeek } from '../../domain/schedule'
+import { dateKey, daysInMonth, isHabitDueOnDate, startOfWeek } from '../../domain/schedule'
 import { notifyHabit } from '../../services/reminderService'
 import type { Habit } from '../../domain/types'
 
@@ -17,6 +17,16 @@ function reminderMatches(habit: Habit, day: number) {
   if (habit.reminderRepeat === 'weekends') return day === 0 || day === 6
   if (habit.reminderRepeat === 'custom') return habit.reminderWeekdays?.includes(day) ?? false
   return true
+}
+
+function intervalStart(habit: Habit, date: Date) {
+  const created = new Date(habit.createdAt)
+  const monthDelta = (date.getFullYear() - created.getFullYear()) * 12 + date.getMonth() - created.getMonth()
+  const interval = Math.max(1, habit.scheduleConfig.intervalMonths ?? 3)
+  const cycleIndex = Math.max(0, Math.floor(monthDelta / interval))
+  const month = created.getMonth() + cycleIndex * interval
+  const day = Math.min(habit.scheduleConfig.day ?? created.getDate(), daysInMonth(created.getFullYear(), month))
+  return new Date(created.getFullYear(), month, day)
 }
 
 function unitLabel(habit: Habit) {
@@ -38,6 +48,10 @@ export function TodayPage() {
       ? checks.filter((check) => check.habitId === habit.id && check.completed && check.date >= weekStart && check.date <= todayKey).length
       : habit.scheduleType === 'monthlyCount'
         ? checks.filter((check) => check.habitId === habit.id && check.completed && check.date.startsWith(monthPrefix)).length
+        : habit.scheduleType === 'intervalMonths'
+          ? checks.filter((check) => check.habitId === habit.id && check.completed && check.date >= dateKey(intervalStart(habit, today)) && check.date <= todayKey).length
+        : habit.scheduleType === 'yearlyCount'
+          ? checks.filter((check) => check.habitId === habit.id && check.completed && check.date.startsWith(todayKey.slice(0, 4))).length
         : 0
     return todayCompleted.has(habit.id) || isHabitDueOnDate(habit, today, completedInPeriod)
   })

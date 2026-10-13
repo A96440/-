@@ -121,6 +121,7 @@ h2 { color: #718178; font-size: .86rem; font-weight: 600; margin-bottom: 10px; }
 .cycle-note { align-items: center; display: flex; gap: 7px; }
 .cycle-note svg { fill: none; height: 19px; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.7; width: 19px; }
 .count-grid { display: grid; gap: 7px; grid-template-columns: repeat(7, 1fr); }
+.interval-grid { grid-template-columns: repeat(5, 1fr); }
 .count-grid button { font-size: .92rem; font-weight: 700; padding: 11px 4px; }
 .count-grid button.selected, .month-day-grid button.selected { background: #514d48; color: #fff; }
 .monthly-presets { grid-template-columns: repeat(5, 1fr); }

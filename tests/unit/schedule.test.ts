@@ -2,9 +2,9 @@ import { describe, expect, it } from 'vitest'
 import { dateKey, daysInMonth, getWeekDates, isHabitDueOnDate } from '../../src/domain/schedule'
 import type { Habit } from '../../src/domain/types'
 
-const habit = (scheduleType: Habit['scheduleType'], scheduleConfig: Habit['scheduleConfig'] = {}): Habit => ({
+const habit = (scheduleType: Habit['scheduleType'], scheduleConfig: Habit['scheduleConfig'] = {}, createdAt = ''): Habit => ({
   id: 'test', name: '测试', icon: '🌱', color: '#fff', context: '全天', scheduleType, scheduleConfig,
-  enabled: true, createdAt: '', updatedAt: '',
+  enabled: true, createdAt, updatedAt: '',
 })
 
 describe('schedule rules', () => {
@@ -20,6 +20,17 @@ describe('schedule rules', () => {
     expect(isHabitDueOnDate(habit('monthlyDate', { day: 31 }), new Date(2026, 1, 28))).toBe(true)
     expect(isHabitDueOnDate(habit('weeklyCount', { count: 2 }), monday, 1)).toBe(true)
     expect(isHabitDueOnDate(habit('weeklyCount', { count: 2 }), monday, 2)).toBe(false)
+    expect(isHabitDueOnDate(habit('yearlyCount', { count: 1 }), monday, 0)).toBe(true)
+    expect(isHabitDueOnDate(habit('yearlyCount', { count: 1 }), monday, 1)).toBe(false)
+  })
+
+  it('keeps interval-month habits due until the next interval', () => {
+    const created = '2026-01-15T08:00:00.000Z'
+    expect(isHabitDueOnDate(habit('intervalMonths', { intervalMonths: 3, day: 15 }, created), new Date(2026, 0, 14))).toBe(false)
+    expect(isHabitDueOnDate(habit('intervalMonths', { intervalMonths: 3, day: 15 }, created), new Date(2026, 0, 15))).toBe(true)
+    expect(isHabitDueOnDate(habit('intervalMonths', { intervalMonths: 3, day: 15 }, created), new Date(2026, 2, 20))).toBe(true)
+    expect(isHabitDueOnDate(habit('intervalMonths', { intervalMonths: 3, day: 15 }, created), new Date(2026, 3, 14))).toBe(false)
+    expect(isHabitDueOnDate(habit('intervalMonths', { intervalMonths: 3, day: 15 }, created), new Date(2026, 3, 15))).toBe(true)
   })
 
   it('returns a Monday-to-Sunday week', () => {
