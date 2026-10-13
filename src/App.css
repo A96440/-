@@ -122,6 +122,9 @@ h2 { color: #718178; font-size: .86rem; font-weight: 600; margin-bottom: 10px; }
 .cycle-note svg { fill: none; height: 19px; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.7; width: 19px; }
 .count-grid { display: grid; gap: 7px; grid-template-columns: repeat(7, 1fr); }
 .interval-grid { grid-template-columns: repeat(5, 1fr); }
+.interval-custom-input { align-items: center; color: #77716b; display: flex; font-size: .82rem; gap: 8px; }
+.interval-custom-input input { background: #fff; border: 1px solid #e1ddd8; border-radius: 10px; color: #4b4742; font-size: 1rem; padding: 9px 10px; width: 86px; }
+.interval-custom-input span { color: #99928b; }
 .count-grid button { font-size: .92rem; font-weight: 700; padding: 11px 4px; }
 .count-grid button.selected, .month-day-grid button.selected { background: #514d48; color: #fff; }
 .monthly-presets { grid-template-columns: repeat(5, 1fr); }
@@ -292,6 +295,8 @@ h2 { color: #718178; font-size: .86rem; font-weight: 600; margin-bottom: 10px; }
 .repeat-tabs button.selected { background: #fff; box-shadow: 0 2px 5px rgba(67, 60, 52, .08); color: #4b4742; font-weight: 700; }
 .reminder-weekdays { gap: 6px; margin-top: 2px; }
 .reminder-weekdays .weekday { padding: 8px 3px; }
+.reminder-date-row { align-items: center; color: #77716b; display: flex; gap: 8px; }
+.reminder-date-row input, .reminder-date-row select { background: #fff; border: 1px solid #e4e0db; border-radius: 10px; color: #4b4742; font-size: .95rem; padding: 9px 10px; width: 82px; }
 .quantity-panel { background: #fbfaf8; }
 .quantity-unit-grid { display: flex; gap: 7px; overflow-x: auto; padding: 2px 1px 5px; scrollbar-width: none; }
 .quantity-unit-grid::-webkit-scrollbar { display: none; }

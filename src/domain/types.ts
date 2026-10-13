@@ -2,7 +2,7 @@ export type ScheduleType = 'daily' | 'weeklyDays' | 'weeklyCount' | 'monthlyDate
 
 export type ScheduleConfig = { weekdays?: number[]; count?: number; day?: number; intervalMonths?: number }
 export type ReminderMode = 'gentle'
-export type ReminderRepeat = 'daily' | 'workdays' | 'weekends' | 'custom'
+export type ReminderRepeat = 'habit' | 'daily' | 'workdays' | 'weekends' | 'custom' | 'monthlyDate' | 'yearlyDate'
 export type QuantityUnit = 'custom' | '次' | '杯' | '毫升' | '分钟' | '小时' | '公里' | '米' | '步' | '页' | '组' | '颗'
 
 export type Habit = {
@@ -18,6 +18,8 @@ export type Habit = {
   reminderMode?: ReminderMode
   reminderRepeat?: ReminderRepeat
   reminderWeekdays?: number[]
+  reminderDay?: number
+  reminderMonth?: number
   reminderCustomUnit?: string
   quantityEnabled?: boolean
   quantityUnit?: QuantityUnit

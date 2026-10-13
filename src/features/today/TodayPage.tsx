@@ -12,10 +12,23 @@ const weekday = new Intl.DateTimeFormat('zh-CN', { weekday: 'long' })
 const dateLabel = new Intl.DateTimeFormat('zh-CN', { month: 'long', day: 'numeric' })
 const contextOrder = ['起床', '晨间', '上午', '中午', '午间', '下午', '晚间', '晚上', '睡前', '全天']
 
-function reminderMatches(habit: Habit, day: number) {
+function reminderMatches(habit: Habit, date: Date) {
+  const day = date.getDay()
   if (habit.reminderRepeat === 'workdays') return day >= 1 && day <= 5
   if (habit.reminderRepeat === 'weekends') return day === 0 || day === 6
   if (habit.reminderRepeat === 'custom') return habit.reminderWeekdays?.includes(day) ?? false
+  if (habit.reminderRepeat === 'monthlyDate') return date.getDate() === Math.min(habit.reminderDay ?? 1, daysInMonth(date.getFullYear(), date.getMonth()))
+  if (habit.reminderRepeat === 'yearlyDate') return date.getMonth() + 1 === (habit.reminderMonth ?? 1) && date.getDate() === Math.min(habit.reminderDay ?? 1, daysInMonth(date.getFullYear(), date.getMonth()))
+  if (habit.reminderRepeat === 'habit') {
+    if (habit.scheduleType === 'intervalMonths') {
+      const created = new Date(habit.createdAt)
+      const monthDelta = (date.getFullYear() - created.getFullYear()) * 12 + date.getMonth() - created.getMonth()
+      const interval = Math.max(1, habit.scheduleConfig.intervalMonths ?? 3)
+      return monthDelta >= 0 && monthDelta % interval === 0 && date.getDate() === Math.min(habit.scheduleConfig.day ?? created.getDate(), daysInMonth(date.getFullYear(), date.getMonth()))
+    }
+    if (habit.scheduleType === 'yearlyCount') return false
+    return isHabitDueOnDate(habit, date, 0)
+  }
   return true
 }
 
@@ -62,8 +75,7 @@ export function TodayPage() {
     function checkReminders() {
       const now = new Date()
       const time = now.toTimeString().slice(0, 5)
-      const day = now.getDay()
-      habits.filter((habit) => habit.reminderEnabled && habit.reminderTime === time && reminderMatches(habit, day)).forEach((habit) => {
+      habits.filter((habit) => habit.reminderEnabled && habit.reminderTime === time && reminderMatches(habit, now)).forEach((habit) => {
         const key = `${habit.id}:${todayKey}:${time}`
         if (!reminded.current.has(key)) { notifyHabit(habit.name, time); reminded.current.add(key) }
       })
