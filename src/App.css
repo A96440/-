@@ -312,3 +312,18 @@ h2 { color: #718178; font-size: .86rem; font-weight: 600; margin-bottom: 10px; }
 @media (max-width: 430px) { .reminder-time-row { align-items: start; flex-direction: column; } .quantity-inputs { grid-template-columns: 1fr; } .quantity-progress { font-size: .72rem; } .quantity-add { padding-left: 6px; padding-right: 6px; } }
 .update-banner { align-items: center; background: #4d4945; border-radius: 14px; bottom: 104px; box-shadow: 0 8px 24px rgba(40, 35, 31, .18); color: #fff; display: flex; font-size: .82rem; gap: 13px; left: 50%; padding: 9px 11px 9px 14px; position: fixed; transform: translateX(-50%); z-index: 10; }
 .update-banner button { background: #f3d58a; border: 0; border-radius: 9px; color: #4d4945; cursor: pointer; font-size: .78rem; font-weight: 700; padding: 7px 10px; white-space: nowrap; }
+
+/* Theme tokens used across the app, including the saved theme choices. */
+:root { --accent-soft: #e9f1e8; --accent-ink: #45634d; }
+.icon-button { background: var(--accent-soft); color: var(--accent-ink); }
+.primary-button { background: var(--accent); }
+.today-summary, .stat-grid div, .month-summary, .settings-status { background: var(--accent-soft); }
+.today-summary strong, .month-summary strong, .stat-grid strong, .settings-status { color: var(--accent-ink); }
+.nav-item.active, .toggle.on { color: var(--accent); }
+.toggle.on { background: var(--accent); }
+.period-switch button.selected, .count-grid button.selected, .month-day-grid button.selected { background: var(--accent); }
+.weekday.selected { background: var(--accent-soft); border-color: var(--accent); color: var(--accent-ink); }
+.context-filter button.selected, .history-context-filter button.selected { background: var(--accent); }
+.settings-list button > span:first-child { color: var(--accent); }
+.theme-option.selected { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.choice.selected, .color-choice.selected { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }

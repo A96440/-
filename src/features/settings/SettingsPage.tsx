@@ -6,7 +6,14 @@ import { setSetting } from '../../db/repositories'
 import { downloadBackup, importBackup } from '../../services/dataTransfer'
 import { requestNotificationPermission } from '../../services/reminderService'
 
-const themes = [{ name: '柔和绿', value: '#6d9875' }, { name: '暖杏色', value: '#c78b62' }, { name: '雾霾蓝', value: '#6f8fa3' }]
+const themes = [{ name: '柔和绿', value: '#6d9875', soft: '#e9f1e8', ink: '#45634d' }, { name: '暖杏色', value: '#c78b62', soft: '#faede4', ink: '#8b5b40' }, { name: '雾霾蓝', value: '#6f8fa3', soft: '#e7eff4', ink: '#4c6e82' }]
+
+function applyTheme(value: string) {
+  const theme = themes.find((item) => item.value === value) ?? themes[0]
+  document.documentElement.style.setProperty('--accent', theme.value)
+  document.documentElement.style.setProperty('--accent-soft', theme.soft)
+  document.documentElement.style.setProperty('--accent-ink', theme.ink)
+}
 
 export function SettingsPage() {
   const fileInput = useRef<HTMLInputElement>(null)
@@ -16,7 +23,7 @@ export function SettingsPage() {
   const notificationPermission = typeof Notification === 'undefined' ? 'unsupported' : Notification.permission
 
   useEffect(() => {
-    document.documentElement.style.setProperty('--accent', theme)
+    applyTheme(theme)
   }, [theme])
 
   async function handleImport(event: ChangeEvent<HTMLInputElement>) {
@@ -36,7 +43,7 @@ export function SettingsPage() {
 
   async function selectTheme(value: string) {
     await setSetting('theme', value)
-    document.documentElement.style.setProperty('--accent', value)
+    applyTheme(value)
   }
 
   return <section className="page"><header className="page-header"><div><p className="eyebrow">只属于你的空间</p><h1>我的</h1></div></header><div className="settings-list"><button onClick={() => downloadBackup()} type="button"><span>⇩</span><span><strong>导出数据</strong><small>保存一份本地备份</small></span><b>›</b></button><button onClick={() => fileInput.current?.click()} type="button"><span>⇧</span><span><strong>导入恢复</strong><small>从备份文件恢复数据</small></span><b>›</b></button><input accept="application/json,.json" className="visually-hidden" onChange={handleImport} ref={fileInput} type="file" /><button onClick={enableNotifications} type="button"><span>◐</span><span><strong>通知权限</strong><small>{notificationPermission === 'granted' ? '已允许，习惯提醒可用' : notificationPermission === 'unsupported' ? '当前浏览器不支持' : '点击允许习惯提醒'}</small></span><b>›</b></button></div><div className="settings-section"><h2>主题颜色</h2><div className="theme-options">{themes.map((item) => <button className={theme === item.value ? 'theme-option selected' : 'theme-option'} key={item.value} onClick={() => selectTheme(item.value)} type="button"><span style={{ backgroundColor: item.value }} />{item.name}</button>)}</div></div>{status && <p className="settings-status" role="status">{status}</p>}</section>

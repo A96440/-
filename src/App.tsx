@@ -11,8 +11,19 @@ import './App.css'
 
 export default function App() {
   const [updateReady, setUpdateReady] = useState(false)
+  const [updating, setUpdating] = useState(false)
   async function applyUpdate() {
-    await updateServiceWorker(true)
+    if (updating) return
+    setUpdating(true)
+    try {
+      if ('serviceWorker' in navigator) {
+        const registrations = await navigator.serviceWorker.getRegistrations()
+        await Promise.all(registrations.map((registration) => registration.update()))
+      }
+      await Promise.race([updateServiceWorker(true), new Promise((resolve) => window.setTimeout(resolve, 1500))])
+    } catch {
+      // Reload below still lets the browser activate a newly downloaded worker.
+    }
     window.location.reload()
   }
   useEffect(() => {
@@ -20,5 +31,5 @@ export default function App() {
     window.addEventListener('xiaorizi-update-available', handleUpdate)
     return () => window.removeEventListener('xiaorizi-update-available', handleUpdate)
   }, [])
-  return <><BrowserRouter basename={import.meta.env.BASE_URL}><Routes><Route element={<AppShell />}><Route index element={<Navigate to="/history" replace />} /><Route path="today" element={<TodayPage />} /><Route path="history" element={<HistoryPage />} /><Route path="habits" element={<HabitsPage />} /><Route path="habits/new" element={<HabitFormPage />} /><Route path="habits/:id/edit" element={<HabitFormPage />} /><Route path="me" element={<SettingsPage />} /><Route path="*" element={<Navigate to="/history" replace />} /></Route></Routes></BrowserRouter>{updateReady && <div className="update-banner" role="status"><span>发现新版本</span><button onClick={() => void applyUpdate()} type="button">立即更新</button></div>}</>
+  return <><BrowserRouter basename={import.meta.env.BASE_URL}><Routes><Route element={<AppShell />}><Route index element={<Navigate to="/history" replace />} /><Route path="today" element={<TodayPage />} /><Route path="history" element={<HistoryPage />} /><Route path="habits" element={<HabitsPage />} /><Route path="habits/new" element={<HabitFormPage />} /><Route path="habits/:id/edit" element={<HabitFormPage />} /><Route path="me" element={<SettingsPage />} /><Route path="*" element={<Navigate to="/history" replace />} /></Route></Routes></BrowserRouter>{updateReady && <div className="update-banner" role="status"><span>{updating ? '正在更新…' : '发现新版本'}</span><button aria-busy={updating} disabled={updating} onClick={() => void applyUpdate()} type="button">{updating ? '请稍候' : '立即更新'}</button></div>}</>
 }

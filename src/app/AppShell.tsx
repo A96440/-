@@ -4,6 +4,7 @@ import { NavLink, Outlet } from 'react-router-dom'
 import { db } from '../db/db'
 
 const navItems = [{ to: '/today', label: '今日', icon: 'today' }, { to: '/habits', label: '习惯', icon: 'habits' }, { to: '/history', label: '打卡表', icon: 'history' }, { to: '/me', label: '我的', icon: 'profile' }] as const
+const themeTones: Record<string, { soft: string; ink: string }> = { '#6d9875': { soft: '#e9f1e8', ink: '#45634d' }, '#c78b62': { soft: '#faede4', ink: '#8b5b40' }, '#6f8fa3': { soft: '#e7eff4', ink: '#4c6e82' } }
 
 function NavIcon({ name }: { name: (typeof navItems)[number]['icon'] }) {
   if (name === 'today') return <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" /><path d="m8.3 12 2.3 2.3 5.2-5.2" /></svg>
@@ -15,7 +16,11 @@ function NavIcon({ name }: { name: (typeof navItems)[number]['icon'] }) {
 export function AppShell() {
   const themeSetting = useLiveQuery(() => db.settings.get('theme'), [], undefined) as { value?: string } | undefined
   useEffect(() => {
-    document.documentElement.style.setProperty('--accent', themeSetting?.value ?? '#6d9875')
+    const accent = themeSetting?.value ?? '#6d9875'
+    const tone = themeTones[accent] ?? themeTones['#6d9875']
+    document.documentElement.style.setProperty('--accent', accent)
+    document.documentElement.style.setProperty('--accent-soft', tone.soft)
+    document.documentElement.style.setProperty('--accent-ink', tone.ink)
   }, [themeSetting?.value])
 
   return <div className="app-shell"><main className="app-main"><Outlet /></main><nav className="bottom-nav" aria-label="主导航">{navItems.map((item) => <NavLink aria-label={item.label} className={({ isActive }) => `nav-item${isActive ? ' active' : ''}`} end key={item.to} to={item.to}><span className="nav-icon"><NavIcon name={item.icon} /></span><span className="nav-label">{item.label}</span></NavLink>)}</nav></div>
