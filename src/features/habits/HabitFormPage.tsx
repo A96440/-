@@ -11,7 +11,7 @@ const colors = ['#b8d8ba', '#f4d5a6', '#d8c6e7', '#b8dce1', '#f1c2c2']
 const icons = ['🌱', '🪴', '🌿', '🌻', '🌸', '🍀', '🌷', '🌹', '🌼', '🪻', '🌾', '🍁', '🍂', '🌲', '🌳', '🎋', '☀️', '🌤️', '🌈', '🌙', '⭐', '✨', '❄️', '🌧️', '🧴', '🪥', '🧼', '🚿', '🛁', '💧', '🧹', '🧽', '🧺', '🧻', '🧯', '🪣', '🧰', '🔧', '🧷', '🪡', '🐈', '🐕', '🐾', '🦜', '🐠', '🐇', '🐢', '🦋', '🐝', '🐞', '🦄', '🏃', '🚶', '🧘', '🏋️', '🚴', '🏊', '🧗', '🤸', '⛹️', '🤾', '🧖', '🚶‍♀️', '📚', '✍️', '📝', '📖', '🎸', '🎨', '🎵', '🎬', '🎧', '🎤', '🎹', '🎮', '🎲', '🧩', '🎯', '🏆', '💰', '💳', '🛒', '🧾', '💊', '🩺', '🩹', '🧪', '🔬', '🥗', '🍎', '🍐', '🍊', '🍋', '🍌', '🍉', '🍓', '🥕', '🌽', '🍞', '🥛', '🍵', '☕', '🍜', '🍣', '🍪', '🧁', '🛌', '⏰', '📅', '🧠', '❤️', '✅', '🔥', '📱', '💻', '⌨️', '🖨️', '✈️', '🚗', '🚲', '🚌', '🚇', '🧳', '🗺️', '🏠', '🛋️', '🛏️', '🧸', '🎁', '🏕️', '🏖️']
 const weekdays = ['一', '二', '三', '四', '五', '六', '日']
 const cycleTabs: { type: ScheduleType; label: string }[] = [{ type: 'daily', label: '每天' }, { type: 'weeklyDays', label: '每周定期' }, { type: 'weeklyCount', label: '每周N天' }, { type: 'monthlyDate', label: '每月定期' }, { type: 'monthlyCount', label: '每月N天' }, { type: 'intervalMonths', label: '每N个月' }, { type: 'yearlyCount', label: '每年N次' }]
-const intervalPresets = [2, 3, 4, 6, 12]
+const intervalPresets = [2, 3, 6, 12]
 
 function CycleIcon() { return <svg aria-hidden="true" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="2" /><path d="M7.5 5V3M16.5 5V3M3.5 9.5h17M7 14h3M14 14h3M7 17h3" /></svg> }
 function LoopIcon() { return <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M5 8a7 7 0 0 1 11.8-2L19 8" /><path d="M19 4v4h-4M19 16a7 7 0 0 1-11.8 2L5 16" /><path d="M5 20v-4h4" /></svg> }
