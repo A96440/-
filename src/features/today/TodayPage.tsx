@@ -82,7 +82,7 @@ export function TodayPage() {
     return <article className={'task-card' + (isCompleted ? ' completed' : '')} key={habit.id} onClick={() => void toggleTask(habit.id)} onKeyDown={(event) => handleTaskKey(event, habit.id)} role="button" style={isCompleted ? { '--task-color': habit.color } as CSSProperties : undefined} tabIndex={0}>
       <span className="task-icon">{habit.icon}</span><span className="task-name">{habit.name}</span>
       {habit.quantityEnabled && <span className="quantity-progress">{amount}{habit.quantityDailyTarget ? `/${habit.quantityDailyTarget}` : ''}{unit}</span>}
-      {habit.quantityEnabled && <button aria-label={`${habit.name} 增加 ${habit.quantityIncrement ?? 1}${unit}`} className="quantity-add" onClick={(event) => { event.stopPropagation(); void addHabitQuantity(habit) }} type="button">＋{habit.quantityIncrement ?? 1}</button>}
+      {habit.quantityEnabled && <button aria-label={`${habit.name} 增加 ${habit.quantityIncrement ?? 1}${unit}`} className="quantity-add" onClick={(event) => { event.stopPropagation(); void addHabitQuantity(habit) }} onKeyDown={(event) => event.stopPropagation()} type="button">＋{habit.quantityIncrement ?? 1}</button>}
       <span aria-hidden="true" className="task-check">{isCompleted ? '✓' : '○'}</span>
     </article>
   }
