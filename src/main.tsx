@@ -2,6 +2,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.tsx'
+import './pwa'
 
 // Keep the PWA at a stable viewport on iPhone. Single-finger scrolling remains
 // available, while accidental two-finger pinch/gesture zoom is ignored.

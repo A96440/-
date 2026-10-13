@@ -304,3 +304,5 @@ h2 { color: #718178; font-size: .86rem; font-weight: 600; margin-bottom: 10px; }
 .quantity-inputs label > span { bottom: 11px; color: #aaa49d; font-size: .76rem; position: absolute; right: 10px; }
 .quantity-hint, .quantity-disabled-note { color: #aaa49d; font-size: .75rem; margin: 0; }
 @media (max-width: 430px) { .reminder-time-row { align-items: start; flex-direction: column; } .quantity-inputs { grid-template-columns: 1fr; } .quantity-progress { font-size: .72rem; } .quantity-add { padding-left: 6px; padding-right: 6px; } }
+.update-banner { align-items: center; background: #4d4945; border-radius: 14px; bottom: 104px; box-shadow: 0 8px 24px rgba(40, 35, 31, .18); color: #fff; display: flex; font-size: .82rem; gap: 13px; left: 50%; padding: 9px 11px 9px 14px; position: fixed; transform: translateX(-50%); z-index: 10; }
+.update-banner button { background: #f3d58a; border: 0; border-radius: 9px; color: #4d4945; cursor: pointer; font-size: .78rem; font-weight: 700; padding: 7px 10px; white-space: nowrap; }

@@ -7,10 +7,18 @@ export async function createExportData(): Promise<ExportData> {
 
 export async function downloadBackup(): Promise<void> {
   const data = await createExportData()
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+  const json = JSON.stringify(data, null, 2)
+  const fileName = `xiaorizi-backup-${data.exportedAt.replaceAll(':', '-').replace('T', '_').replace('Z', '')}.json`
+  const file = new File([json], fileName, { type: 'application/json' })
+  if (navigator.share && navigator.canShare?.({ files: [file] })) {
+    try { await navigator.share({ title: '小日常数据备份', files: [file] }); return } catch (error) {
+      if (error instanceof DOMException && error.name === 'AbortError') return
+    }
+  }
+  const blob = new Blob([json], { type: 'application/json' })
   const url = URL.createObjectURL(blob)
   const link = document.createElement('a')
-  link.href = url; link.download = `xiaorizi-backup-${data.exportedAt.slice(0, 10)}.json`; document.body.appendChild(link); link.click(); link.remove(); window.setTimeout(() => URL.revokeObjectURL(url), 0)
+  link.href = url; link.download = fileName; link.rel = 'noopener'; document.body.appendChild(link); link.click(); link.remove(); window.setTimeout(() => URL.revokeObjectURL(url), 0)
 }
 
 export async function importBackup(file: File): Promise<void> {
