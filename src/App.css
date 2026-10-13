@@ -1,6 +1,6 @@
 .app-shell { min-height: 100vh; }
 .app-main { max-width: 760px; margin: 0 auto; padding: 24px 20px 100px; }
-.page { animation: appear .25s ease-out; }
+.page { animation: appear .12s ease-out; }
 @keyframes appear { from { opacity: .2; transform: translateY(4px); } to { opacity: 1; transform: none; } }
 .page-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 26px; }
 .today-header { margin-bottom: 20px; }
@@ -312,6 +312,11 @@ h2 { color: #718178; font-size: .86rem; font-weight: 600; margin-bottom: 10px; }
 @media (max-width: 430px) { .reminder-time-row { align-items: start; flex-direction: column; } .quantity-inputs { grid-template-columns: 1fr; } .quantity-progress { font-size: .72rem; } .quantity-add { padding-left: 6px; padding-right: 6px; } }
 .update-banner { align-items: center; background: #4d4945; border-radius: 14px; bottom: 104px; box-shadow: 0 8px 24px rgba(40, 35, 31, .18); color: #fff; display: flex; font-size: .82rem; gap: 13px; left: 50%; padding: 9px 11px 9px 14px; position: fixed; transform: translateX(-50%); z-index: 10; }
 .update-banner button { background: #f3d58a; border: 0; border-radius: 9px; color: #4d4945; cursor: pointer; font-size: .78rem; font-weight: 700; padding: 7px 10px; white-space: nowrap; }
+
+/* Keep iPhone navigation responsive: blur filters and long page fades delay taps. */
+.app-shell > .bottom-nav { -webkit-backdrop-filter: none; backdrop-filter: none; background: rgba(255,255,255,.97); }
+.app-shell > .bottom-nav .nav-item { touch-action: manipulation; }
+@media (prefers-reduced-motion: reduce) { .page { animation: none; } * { scroll-behavior: auto !important; } }
 
 /* Theme tokens used across the app, including the saved theme choices. */
 :root { --accent-soft: #e9f1e8; --accent-ink: #45634d; }
