@@ -49,9 +49,13 @@ function unitLabel(habit: Habit) {
 export function TodayPage() {
   const [today] = useState(() => new Date())
   const todayKey = dateKey(today)
-  const allHabits = useLiveQuery(() => db.habits.orderBy('createdAt').toArray(), [], []) as Habit[]
-  const checks = useLiveQuery(() => db.checkRecords.toArray(), [], [])
-  const quantities = useLiveQuery(() => db.quantityRecords.toArray(), [], [])
+  const habitsQuery = useLiveQuery(() => db.habits.orderBy('createdAt').toArray(), [])
+  const checksQuery = useLiveQuery(() => db.checkRecords.toArray(), [])
+  const quantitiesQuery = useLiveQuery(() => db.quantityRecords.toArray(), [])
+  const loading = habitsQuery === undefined || checksQuery === undefined || quantitiesQuery === undefined
+  const allHabits = habitsQuery ?? []
+  const checks = checksQuery ?? []
+  const quantities = quantitiesQuery ?? []
   const todayChecks = checks.filter((check) => check.date === todayKey)
   const todayCompleted = new Set(todayChecks.filter((check) => check.completed).map((check) => check.habitId))
   const weekStart = dateKey(startOfWeek(today))
@@ -112,6 +116,8 @@ export function TodayPage() {
       <span aria-hidden="true" className="task-check">{isCompleted ? '✓' : '○'}</span>
     </article>
   }
+
+  if (loading) return <section className="page today-page today-loading" aria-busy="true"><header className="page-header today-header"><div><p className="eyebrow">正在读取</p><h1>今天</h1></div><span className="loading-dot" /></header><div className="loading-card" /><div className="loading-card short" /></section>
 
   return <section className="page today-page">
     <header className="page-header today-header"><div><p className="eyebrow">{dateLabel.format(today)}</p><h1>今天，{weekday.format(today)}</h1></div><Link className="icon-button" title="添加习惯" to="/habits/new">＋</Link></header>

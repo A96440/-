@@ -38,8 +38,11 @@ export function HistoryPage() {
   const [period, setPeriod] = useState<Period>('week')
   const [anchor, setAnchor] = useState(() => new Date())
   const [contextFilter, setContextFilter] = useState('全部')
-  const habits = useLiveQuery(() => db.habits.orderBy('createdAt').toArray(), [], []) as Habit[]
-  const checks = useLiveQuery(() => db.checkRecords.toArray(), [], []) as CheckRecord[]
+  const habitsQuery = useLiveQuery(() => db.habits.orderBy('createdAt').toArray(), [])
+  const checksQuery = useLiveQuery(() => db.checkRecords.toArray(), [])
+  const loading = habitsQuery === undefined || checksQuery === undefined
+  const habits = habitsQuery ?? []
+  const checks = checksQuery ?? []
   const dates = periodDates(period, anchor)
   const enabledHabits = habits.filter((habit) => habit.enabled)
   const contexts = ['全部', ...new Set(enabledHabits.map((habit) => habit.context))]
@@ -61,6 +64,8 @@ export function HistoryPage() {
   async function toggle(habitId: string, date: Date) {
     await setCheck(habitId, date, !completed.has(habitId + ':' + dateKey(date)))
   }
+
+  if (loading) return <section className="page history-home loading-page" aria-busy="true"><div className="loading-card" /><div className="loading-card" /><div className="loading-card short" /></section>
 
   return <section className="page history-home">
     <div className="period-switch" role="tablist" aria-label="查看周期">{(['day', 'week', 'month', 'year'] as const).map((item) => <button className={period === item ? 'selected' : ''} key={item} onClick={() => setPeriod(item)} role="tab" aria-selected={period === item} type="button">{item === 'day' ? '日' : item === 'week' ? '周' : item === 'month' ? '月' : '年'}</button>)}</div>

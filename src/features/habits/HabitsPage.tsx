@@ -6,6 +6,7 @@ import { setHabitEnabled } from '../../db/repositories'
 import type { Habit } from '../../domain/types'
 
 const contextOrder = ['起床', '晨间', '上午', '中午', '午间', '下午', '晚间', '晚上', '睡前', '全天']
+const emptyHabits: Habit[] = []
 
 function scheduleLabel(habit: Habit): string {
   if (habit.scheduleType === 'daily') return '每天'
@@ -20,7 +21,9 @@ function scheduleLabel(habit: Habit): string {
 
 export function HabitsPage() {
   const navigate = useNavigate()
-  const habits = useLiveQuery(() => db.habits.orderBy('createdAt').toArray(), [], []) as Habit[]
+  const habitsQuery = useLiveQuery(() => db.habits.orderBy('createdAt').toArray(), [])
+  const loading = habitsQuery === undefined
+  const habits = habitsQuery ?? emptyHabits
   const [filter, setFilter] = useState('全部')
   const contexts = useMemo(() => ['全部', ...[...new Set(habits.map((habit) => habit.context))].sort((a, b) => (contextOrder.indexOf(a) + 1 || 99) - (contextOrder.indexOf(b) + 1 || 99))], [habits])
   const filtered = filter === '全部' ? habits : habits.filter((habit) => habit.context === filter)
@@ -28,6 +31,8 @@ export function HabitsPage() {
   async function toggleHabit(id: string, enabled: boolean) { await setHabitEnabled(id, enabled) }
   function openHabit(id: string) { navigate(`/habits/${id}/edit`) }
   function handleKey(event: React.KeyboardEvent<HTMLElement>, id: string) { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); openHabit(id) } }
+
+  if (loading) return <section className="page habits-page loading-page" aria-busy="true"><header className="page-header"><div><p className="eyebrow">正在读取</p><h1>打卡管理</h1></div></header><div className="loading-card" /><div className="loading-card" /><div className="loading-card short" /></section>
 
   return <section className="page habits-page"><header className="page-header"><div><p className="eyebrow">建立你的节奏</p><h1>打卡管理</h1></div><Link className="primary-button" to="/habits/new">＋ 新习惯</Link></header>{habits.length === 0 ? <div className="empty-state"><span>🌱</span><h2>还没有习惯</h2><p>从一个想坚持的小事情开始吧。</p><Link className="primary-button" to="/habits/new">创建第一个习惯</Link></div> : <><div aria-label="情景筛选" className="context-filter" role="tablist">{contexts.map((context) => <button aria-selected={filter === context} className={filter === context ? 'selected' : ''} key={context} onClick={() => setFilter(context)} role="tab" type="button">{context}{context !== '全部' && <small>({habits.filter((habit) => habit.context === context).length})</small>}</button>)}</div><div className="habit-groups">{grouped.map((context) => <section className="habit-group" key={context}><h2>{context}</h2><div className="habit-list">{filtered.filter((habit) => habit.context === context).map((habit) => <article className={`habit-card${habit.enabled ? '' : ' disabled'}`} key={habit.id} onClick={() => openHabit(habit.id)} onKeyDown={(event) => handleKey(event, habit.id)} role="link" tabIndex={0}><span className="habit-icon" style={{ backgroundColor: habit.color }}>{habit.icon}</span><div className="habit-info"><strong>{habit.name}</strong><small>{scheduleLabel(habit)} · {habit.context}{habit.quantityEnabled ? ` · 量化${habit.quantityDailyTarget ? ` / 日目标 ${habit.quantityDailyTarget}` : ''}` : ''}</small></div><button className={`toggle${habit.enabled ? ' on' : ''}`} aria-label={`${habit.enabled ? '停用' : '启用'} ${habit.name}`} onClick={(event) => { event.stopPropagation(); void toggleHabit(habit.id, !habit.enabled) }} type="button"><span /></button><span aria-hidden="true" className="habit-arrow">›</span></article>)}</div></section>)}</div></>}</section>
 }
