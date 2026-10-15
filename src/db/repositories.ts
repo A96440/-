@@ -123,6 +123,10 @@ export async function createBirthday(input: Omit<Birthday, 'id' | 'createdAt' | 
   return birthday
 }
 
+export async function saveBirthday(birthday: Birthday): Promise<void> {
+  await db.birthdays.put({ ...birthday, updatedAt: new Date().toISOString() })
+}
+
 export async function deleteBirthday(birthdayId: string): Promise<void> { await db.birthdays.delete(birthdayId) }
 
 export async function setCheck(habitId: string, date = new Date(), completed: boolean): Promise<CheckRecord> {

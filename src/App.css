@@ -396,9 +396,6 @@ h2 { color: #718178; font-size: .86rem; font-weight: 600; margin-bottom: 10px; }
 .sticky-form label { color: #77716b; display: grid; font-size: .8rem; gap: 6px; }
 .sticky-form input, .sticky-form textarea { background: #faf9f7; border: 1px solid #e6e1db; border-radius: 11px; color: #4b4742; font-size: 16px; padding: 11px; }
 .sticky-form textarea { min-height: 92px; resize: vertical; }
-.sticky-color-picker { display: flex; gap: 9px; }
-.sticky-color-picker button { border: 2px solid #fff; border-radius: 50%; cursor: pointer; height: 30px; width: 30px; }
-.sticky-color-picker button.selected { box-shadow: 0 0 0 3px var(--accent-soft); }
 .calendar-toggle { background: #f4f1ed; border-radius: 11px; display: grid; gap: 3px; grid-template-columns: 1fr 1fr; padding: 3px; }
 .calendar-toggle button, .birthday-offsets button { background: transparent; border: 0; border-radius: 9px; color: #8d857d; cursor: pointer; padding: 9px 5px; }
 .calendar-toggle button.selected, .birthday-offsets button.selected { background: #fff; box-shadow: 0 2px 5px rgba(67, 60, 52, .08); color: #4b4742; font-weight: 700; }
@@ -460,6 +457,9 @@ h2 { color: #718178; font-size: .86rem; font-weight: 600; margin-bottom: 10px; }
 .work-project-card small, .work-project-card p { color: #938b84; font-size: .74rem; margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .work-project-card p { grid-column: 1 / -1; }
 .work-progress { color: var(--accent-ink); font-size: 1rem; font-weight: 700; }
+.completed-project-card { opacity: .62; }
+.completed-project-card strong { color: #918a83; text-decoration: line-through; }
+.completed-project-card .work-progress { color: #918a83; }
 .work-completed { border-top: 1px dashed #e4e0db; margin-top: 24px; padding-top: 15px; }
 .compact-empty { padding: 28px 15px; }
 @media (max-width: 430px) { .create-choice-grid { gap: 9px; } .create-choice { min-height: 130px; padding: 13px; } .project-two-fields { gap: 7px; } .project-timeline-list { margin-left: 46px; padding-left: 12px; } .project-event { gap: 5px; grid-template-columns: 35px 10px minmax(0, 1fr); margin-left: -47px; } }
@@ -468,3 +468,8 @@ h2 { color: #718178; font-size: .86rem; font-weight: 600; margin-bottom: 10px; }
 .sticky-quadrant, .work-project-card { background-color: #fbf8ef; background-image: linear-gradient(135deg, rgba(255,255,255,.45), transparent 56%), radial-gradient(rgba(90,80,70,.035) .55px, transparent .7px); background-size: auto, 5px 5px; }
 .work-project-card { border: 1px solid rgba(120,110,100,.14); border-radius: 12px; box-shadow: 0 6px 14px rgba(94,83,72,.1); }
 .sticky-quadrant, .sticky-quadrant:nth-child(1), .sticky-quadrant:nth-child(2), .sticky-quadrant:nth-child(3), .sticky-quadrant:nth-child(4) { transform: none; }
+.sticky-quadrant, .work-project-card, .project-progress-card { background-color: #fbf8ef; background-image: linear-gradient(135deg, rgba(255,255,255,.45), transparent 56%), radial-gradient(rgba(90,80,70,.035) .55px, transparent .7px); background-size: auto, 5px 5px; }
+.project-progress-card { border: 1px solid rgba(120,110,100,.14); border-radius: 12px; box-shadow: 0 6px 14px rgba(94,83,72,.1); }
+.create-choice { background: #fbf8ef; border: 1px solid rgba(120,110,100,.14); border-radius: 12px; box-shadow: 0 6px 14px rgba(94,83,72,.08); }
+.create-choice span { color: #7d766f; }
+.birthday-preview { cursor: pointer; }
