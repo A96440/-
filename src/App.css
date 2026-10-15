@@ -519,3 +519,18 @@ h2 { color: #718178; font-size: .86rem; font-weight: 600; margin-bottom: 10px; }
 .collection-empty { color: #9b938c; padding: 42px 15px; text-align: center; }
 .sticky-undo-notice { align-items: center; background: #3f3b37; border-radius: 10px; bottom: calc(76px + env(safe-area-inset-bottom)); box-shadow: 0 8px 22px rgba(54,49,44,.2); color: #fff; display: flex; font-size: .8rem; gap: 14px; justify-content: space-between; left: 16px; max-width: 440px; padding: 11px 13px; position: fixed; right: 16px; z-index: 12; }
 .sticky-undo-notice button { background: transparent; border: 0; color: #f4d88e; cursor: pointer; font-size: .8rem; font-weight: 700; padding: 3px 0; }
+
+/* Habit editor consistency: icons, controls, and fields share one visual system. */
+.cycle-title { align-items: center; }
+.cycle-icon, .panel-icon { align-items: center; display: inline-flex; }
+.cycle-icon svg, .panel-icon svg { fill: none; flex: 0 0 auto; height: 20px; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.8; width: 20px; }
+.panel-icon { background: #e8eee9; color: var(--accent-ink); font-size: 0; height: 30px; width: 30px; }
+.switch.on { background: var(--accent); }
+.cycle-panel, .reminder-panel, .quantity-panel { background: #fbf8f2; border-color: #ece7de; }
+.cycle-tabs, .repeat-tabs { background: #f0ece5; }
+.cycle-tabs button.selected, .repeat-tabs button.selected { background: var(--accent-soft); box-shadow: none; color: var(--accent-ink); }
+.quantity-unit-grid button, .quantity-inputs input, .quantity-custom-label input, .reminder-time-row input, .reminder-date-row input, .reminder-date-row select, .interval-custom-input input { background: #f7f5f1; border-color: #e4dfd7; }
+.quantity-unit-grid button.selected { background: var(--accent-soft); border-color: var(--accent); color: var(--accent-ink); }
+.habit-form input, .habit-form select, .habit-form textarea { background: #f7f5f1; border-color: #e4dfd7; }
+.habit-form input:focus, .habit-form select:focus, .habit-form textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.sticky-form-hint { color: #9b938c; font-size: .75rem; margin: -5px 0 0; }

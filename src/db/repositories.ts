@@ -50,9 +50,9 @@ export async function setQuantity(habitId: string, amount: number, date = new Da
 
 const stickyColors = ['#dce8f3', '#e4efdf', '#f8edc9', '#f3dfdf']
 
-export async function createProject(input: Pick<Project, 'name' | 'client' | 'address'> & Partial<Pick<Project, 'color'>>): Promise<Project> {
+export async function createProject(input: Pick<Project, 'name' | 'client' | 'note'> & Partial<Pick<Project, 'color'>>): Promise<Project> {
   const now = new Date().toISOString()
-  const project: Project = { id: newId(), name: input.name.trim(), client: input.client?.trim() || undefined, address: input.address?.trim() || undefined, color: input.color ?? stickyColors[0], status: 'active', createdAt: now, updatedAt: now }
+  const project: Project = { id: newId(), name: input.name.trim(), client: input.client?.trim() || undefined, note: input.note?.trim() || undefined, color: input.color ?? stickyColors[0], status: 'active', createdAt: now, updatedAt: now }
   await db.projects.put(project)
   return project
 }

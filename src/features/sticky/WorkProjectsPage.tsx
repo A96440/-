@@ -2,6 +2,7 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { Link, useNavigate } from 'react-router-dom'
 import { db } from '../../db/db'
 import { setProjectStatus } from '../../db/repositories'
+import { projectMeta } from '../../domain/sticky'
 import type { Project, ProjectNode } from '../../domain/types'
 import { UndoNoticeBar } from './UndoNoticeBar'
 import { useUndoNotice } from './useUndoNotice'
@@ -29,5 +30,5 @@ function ProjectCard({ project, nodes: allNodes, onOpen, onToggle }: { project: 
   const completedNodes = nodes.filter((node) => node.status === 'completed')
   const next = nodes.find((node) => node.status === 'pending')
   const current = completedNodes.at(-1) ?? next
-  return <article className={`work-project-card${project.status === 'completed' ? ' completed-project-card' : ''}`} onClick={onOpen} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); onOpen() } }} role="link" tabIndex={0}><button aria-label={project.status === 'completed' ? `恢复 ${project.name}` : `完成 ${project.name}`} className="sticky-row-check" onClick={(event) => { event.stopPropagation(); onToggle() }} type="button">{project.status === 'completed' ? '✓' : ''}</button><div className="work-project-copy"><div className="work-project-title"><strong>{project.name}</strong><span>{project.status === 'completed' ? '已完成' : '进行中'}</span></div><small>{project.address || project.client || '未填写客户信息'}</small><p>{current ? `${completedNodes.length ? '已完成' : '当前'}：${current.title}` : '还没有任务节点'}</p></div></article>
+  return <article className={`work-project-card${project.status === 'completed' ? ' completed-project-card' : ''}`} onClick={onOpen} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); onOpen() } }} role="link" tabIndex={0}><button aria-label={project.status === 'completed' ? `恢复 ${project.name}` : `完成 ${project.name}`} className="sticky-row-check" onClick={(event) => { event.stopPropagation(); onToggle() }} type="button">{project.status === 'completed' ? '✓' : ''}</button><div className="work-project-copy"><div className="work-project-title"><strong>{project.name}</strong><span>{project.status === 'completed' ? '已完成' : '进行中'}</span></div><small>{projectMeta(project)}</small><p>{current ? `${completedNodes.length ? '已完成' : '当前'}：${current.title}` : '还没有任务节点'}</p></div></article>
 }

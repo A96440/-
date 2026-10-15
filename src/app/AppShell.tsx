@@ -1,6 +1,6 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useEffect } from 'react'
-import { NavLink, Outlet } from 'react-router-dom'
+import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { db } from '../db/db'
 
 const navItems = [{ to: '/today', label: '今日', icon: 'today' }, { to: '/habits', label: '习惯', icon: 'habits' }, { to: '/history', label: '打卡表', icon: 'history' }, { to: '/stickies', label: '便利贴', icon: 'sticky' }, { to: '/me', label: '我的', icon: 'profile' }] as const
@@ -16,6 +16,7 @@ function NavIcon({ name }: { name: (typeof navItems)[number]['icon'] }) {
 
 export function AppShell() {
   const themeSetting = useLiveQuery(() => db.settings.get('theme'), [], undefined) as { value?: string } | undefined
+  const location = useLocation()
   useEffect(() => {
     const accent = themeSetting?.value ?? '#6d9875'
     const tone = themeTones[accent] ?? themeTones['#6d9875']
@@ -23,6 +24,11 @@ export function AppShell() {
     document.documentElement.style.setProperty('--accent-soft', tone.soft)
     document.documentElement.style.setProperty('--accent-ink', tone.ink)
   }, [themeSetting?.value])
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
+    if (document.scrollingElement) document.scrollingElement.scrollTop = 0
+  }, [location.pathname, location.search])
 
   return <div className="app-shell"><main className="app-main"><Outlet /></main><nav className="bottom-nav" aria-label="主导航">{navItems.map((item) => <NavLink aria-label={item.label} className={({ isActive }) => `nav-item${isActive ? ' active' : ''}`} end key={item.to} to={item.to}><span className="nav-icon"><NavIcon name={item.icon} /></span><span className="nav-label">{item.label}</span></NavLink>)}</nav></div>
 }

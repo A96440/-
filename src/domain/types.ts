@@ -59,6 +59,8 @@ export type Project = {
   id: string
   name: string
   client?: string
+  note?: string
+  /** @deprecated kept so older local backups continue to load */
   address?: string
   color: string
   status: StickyStatus
