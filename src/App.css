@@ -520,6 +520,33 @@ h2 { color: #718178; font-size: .86rem; font-weight: 600; margin-bottom: 10px; }
 .sticky-undo-notice { align-items: center; background: #3f3b37; border-radius: 10px; bottom: calc(76px + env(safe-area-inset-bottom)); box-shadow: 0 8px 22px rgba(54,49,44,.2); color: #fff; display: flex; font-size: .8rem; gap: 14px; justify-content: space-between; left: 16px; max-width: 440px; padding: 11px 13px; position: fixed; right: 16px; z-index: 12; }
 .sticky-undo-notice button { background: transparent; border: 0; color: #f4d88e; cursor: pointer; font-size: .8rem; font-weight: 700; padding: 3px 0; }
 
+/* Physical paper quadrants: one paper stock, title colour provides the category cue. */
+.sticky-quadrants { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.sticky-quadrant { background-color: #fbf8ef; background-image: linear-gradient(135deg, rgba(255,255,255,.5), transparent 58%), radial-gradient(rgba(90,80,70,.045) .55px, transparent .72px); background-size: auto, 5px 5px; border: 1px solid rgba(120,110,100,.18); border-radius: 16px; box-shadow: 0 8px 16px rgba(94,83,72,.12), 1px 1px 0 rgba(255,255,255,.85) inset; min-height: 250px; padding: 16px 14px; transform: none; }
+.sticky-quadrant::before { opacity: .65; }
+.sticky-quadrant::after { border-color: transparent transparent rgba(150,145,137,.28) transparent; border-width: 0 0 30px 30px; filter: drop-shadow(-1px -1px 1px rgba(100,95,88,.16)); }
+.sticky-quadrant:nth-child(1), .sticky-quadrant:nth-child(2), .sticky-quadrant:nth-child(3), .sticky-quadrant:nth-child(4) { transform: none; }
+.work-quadrant, .life-quadrant, .memo-quadrant, .birthday-quadrant { background-color: #fbf8ef; background-image: linear-gradient(135deg, rgba(255,255,255,.5), transparent 58%), radial-gradient(rgba(90,80,70,.045) .55px, transparent .72px); }
+.quadrant-heading { margin-bottom: 8px; }
+.quadrant-heading h2 { color: #45413d; font-size: .98rem; letter-spacing: -.02em; }
+.work-quadrant .quadrant-heading h2 { color: #b86f72; }
+.life-quadrant .quadrant-heading h2 { color: #5b866c; }
+.memo-quadrant .quadrant-heading h2 { color: #b27e47; }
+.birthday-quadrant .quadrant-heading h2 { color: #7284ad; }
+.quadrant-add { color: #57514b; font-size: 1.45rem; }
+.sticky-preview { min-height: 45px; padding: 10px 0; }
+.sticky-preview strong { font-size: .82rem; }
+.sticky-preview small, .sticky-preview span { font-size: .68rem; }
+.sticky-row-copy strong { color: #48433e; }
+.sticky-row-copy span, .sticky-row-copy small { color: #9a928b; }
+.sticky-completed-section { margin-top: 22px; }
+.completed-sticky-row { align-items: center; border-bottom: 1px solid #ece8e3; display: flex; gap: 10px; min-height: 49px; padding: 9px 2px; }
+.completed-row-check { align-items: center; background: transparent; border: 1.5px solid #aaa39b; border-radius: 4px; color: #847c74; cursor: pointer; display: inline-flex; flex: 0 0 auto; height: 22px; justify-content: center; padding: 0; width: 22px; }
+.completed-row-main { background: transparent; border: 0; color: #96908a; flex: 1; min-width: 0; padding: 0; text-align: left; text-decoration: none; }
+.completed-row-main strong { color: #96908a; display: block; font-size: .82rem; overflow: hidden; text-decoration: line-through; text-overflow: ellipsis; white-space: nowrap; }
+.completed-row-meta { color: #aaa39c; flex: 0 0 68px; font-size: .7rem; text-align: right; }
+@media (max-width: 390px) { .sticky-quadrants { gap: 9px; } .sticky-quadrant { min-height: 230px; padding: 13px 11px; } .quadrant-heading h2 { font-size: .86rem; } .quadrant-add { font-size: 1.3rem; } .sticky-preview { gap: 7px; min-height: 42px; padding: 8px 0; } .sticky-preview strong { font-size: .76rem; } .sticky-preview small, .sticky-preview span { font-size: .63rem; } .sticky-row-check { height: 19px; width: 19px; } .completed-row-meta { flex-basis: 58px; font-size: .63rem; } }
+
 /* Habit editor consistency: icons, controls, and fields share one visual system. */
 .cycle-title { align-items: center; }
 .cycle-icon, .panel-icon { align-items: center; display: inline-flex; }
