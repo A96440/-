@@ -579,6 +579,16 @@ h2 { color: #718178; font-size: .86rem; font-weight: 600; margin-bottom: 10px; }
 .quantity-bar-track { align-items: end; display: flex; height: calc(100% - 20px); width: 100%; }
 .quantity-bar-track span { border-radius: 4px 4px 0 0; display: block; min-height: 2px; opacity: .8; width: 100%; }
 .quantity-bar-column small { color: #aaa49e; font-size: .58rem; }
+.trend-range-tabs { display: flex; gap: 8px; margin: 0 0 18px; }
+.trend-range-tabs button { background: #fff; border: 1px solid #e7e3de; border-radius: 18px; color: #77716b; cursor: pointer; font-size: .78rem; padding: 8px 14px; }
+.trend-range-tabs button.selected { background: #d8d5c7; border-color: #d8d5c7; color: #fff; font-weight: 700; }
+.quantity-line-chart { height: 230px; margin-top: 4px; width: 100%; }
+.quantity-line-chart svg { display: block; height: 100%; overflow: visible; width: 100%; }
+.chart-grid-lines line { stroke: #eceae6; stroke-dasharray: 3 4; stroke-width: 1; }
+.chart-area { fill: rgba(176,173,153,.13); }
+.chart-line { fill: none; stroke: #b5b2a2; stroke-linecap: round; stroke-linejoin: round; stroke-width: 2.5; }
+.quantity-line-chart circle { fill: #b5b2a2; }
+.chart-y-labels text, .chart-x-labels text { fill: #aaa49e; font-size: 10px; }
 .detail-empty { align-items: center; color: #aaa49e; display: flex; flex-direction: column; gap: 12px; padding: 50px 0; text-align: center; }
 .detail-empty strong { color: #77716b; font-size: .9rem; }
 .detail-empty a { color: var(--accent-ink); font-size: .8rem; font-weight: 700; }
