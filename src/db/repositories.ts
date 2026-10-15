@@ -1,5 +1,5 @@
 import { db } from './db'
-import type { CheckRecord, Habit, QuantityRecord } from '../domain/types'
+import type { Birthday, CheckRecord, Habit, LifeItem, Memo, Project, ProjectNode, QuantityRecord } from '../domain/types'
 import { dateKey } from '../domain/schedule'
 
 const newId = () => crypto.randomUUID()
@@ -47,6 +47,83 @@ export async function setQuantity(habitId: string, amount: number, date = new Da
   await db.quantityRecords.put(record)
   return record
 }
+
+const stickyColors = ['#dce8f3', '#e4efdf', '#f8edc9', '#f3dfdf']
+
+export async function createProject(input: Pick<Project, 'name' | 'client' | 'address'> & Partial<Pick<Project, 'color'>>): Promise<Project> {
+  const now = new Date().toISOString()
+  const project: Project = { id: newId(), name: input.name.trim(), client: input.client?.trim() || undefined, address: input.address?.trim() || undefined, color: input.color ?? stickyColors[0], status: 'active', createdAt: now, updatedAt: now }
+  await db.projects.put(project)
+  return project
+}
+
+export async function saveProject(project: Project): Promise<void> { await db.projects.put({ ...project, updatedAt: new Date().toISOString() }) }
+
+export async function setProjectStatus(projectId: string, status: Project['status']): Promise<void> {
+  const project = await db.projects.get(projectId)
+  if (!project) return
+  const now = new Date().toISOString()
+  await db.projects.put({ ...project, status, completedAt: status === 'completed' ? now : undefined, updatedAt: now })
+}
+
+export async function deleteProject(projectId: string): Promise<void> {
+  await db.transaction('rw', db.projects, db.projectNodes, async () => {
+    await db.projects.delete(projectId)
+    await db.projectNodes.where('projectId').equals(projectId).delete()
+  })
+}
+
+export async function createProjectNode(projectId: string, title: string): Promise<ProjectNode> {
+  const current = await db.projectNodes.where('projectId').equals(projectId).toArray()
+  const now = new Date().toISOString()
+  const node: ProjectNode = { id: newId(), projectId, title: title.trim(), position: current.length, status: 'pending', createdAt: now, updatedAt: now }
+  await db.projectNodes.put(node)
+  return node
+}
+
+export async function toggleProjectNode(nodeId: string): Promise<void> {
+  const node = await db.projectNodes.get(nodeId)
+  if (!node) return
+  const completed = node.status !== 'completed'
+  await db.projectNodes.put({ ...node, status: completed ? 'completed' : 'pending', completedAt: completed ? new Date().toISOString() : undefined, updatedAt: new Date().toISOString() })
+}
+
+export async function createLifeItem(title: string, note?: string, dueAt?: string): Promise<LifeItem> {
+  const now = new Date().toISOString()
+  const item: LifeItem = { id: newId(), title: title.trim(), note: note?.trim() || undefined, dueAt: dueAt || undefined, status: 'active', createdAt: now, updatedAt: now }
+  await db.lifeItems.put(item)
+  return item
+}
+
+export async function saveLifeItem(item: LifeItem): Promise<void> { await db.lifeItems.put({ ...item, updatedAt: new Date().toISOString() }) }
+
+export async function toggleLifeItem(itemId: string): Promise<void> {
+  const item = await db.lifeItems.get(itemId)
+  if (!item) return
+  const completed = item.status !== 'completed'
+  await db.lifeItems.put({ ...item, status: completed ? 'completed' : 'active', completedAt: completed ? new Date().toISOString() : undefined, updatedAt: new Date().toISOString() })
+}
+
+export async function deleteLifeItem(itemId: string): Promise<void> { await db.lifeItems.delete(itemId) }
+
+export async function createMemo(title: string, content: string, color = stickyColors[2]): Promise<Memo> {
+  const now = new Date().toISOString()
+  const memo: Memo = { id: newId(), title: title.trim(), content, color, pinned: false, status: 'active', createdAt: now, updatedAt: now }
+  await db.memos.put(memo)
+  return memo
+}
+
+export async function saveMemo(memo: Memo): Promise<void> { await db.memos.put({ ...memo, updatedAt: new Date().toISOString() }) }
+export async function deleteMemo(memoId: string): Promise<void> { await db.memos.delete(memoId) }
+
+export async function createBirthday(input: Omit<Birthday, 'id' | 'createdAt' | 'updatedAt'>): Promise<Birthday> {
+  const now = new Date().toISOString()
+  const birthday: Birthday = { ...input, id: newId(), createdAt: now, updatedAt: now }
+  await db.birthdays.put(birthday)
+  return birthday
+}
+
+export async function deleteBirthday(birthdayId: string): Promise<void> { await db.birthdays.delete(birthdayId) }
 
 export async function setCheck(habitId: string, date = new Date(), completed: boolean): Promise<CheckRecord> {
   const key = dateKey(date)

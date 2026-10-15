@@ -52,11 +52,76 @@ export type AppSetting = {
   value: unknown
 }
 
+export type StickyStatus = 'active' | 'completed' | 'archived'
+export type CalendarType = 'gregorian' | 'lunar'
+
+export type Project = {
+  id: string
+  name: string
+  client?: string
+  address?: string
+  color: string
+  status: StickyStatus
+  createdAt: string
+  updatedAt: string
+  completedAt?: string
+}
+
+export type ProjectNode = {
+  id: string
+  projectId: string
+  title: string
+  position: number
+  status: 'pending' | 'completed'
+  createdAt: string
+  updatedAt: string
+  completedAt?: string
+}
+
+export type LifeItem = {
+  id: string
+  title: string
+  note?: string
+  dueAt?: string
+  status: StickyStatus
+  createdAt: string
+  updatedAt: string
+  completedAt?: string
+}
+
+export type Memo = {
+  id: string
+  title: string
+  content: string
+  color: string
+  pinned: boolean
+  status: 'active' | 'archived'
+  createdAt: string
+  updatedAt: string
+}
+
+export type Birthday = {
+  id: string
+  name: string
+  relation?: string
+  calendarType: CalendarType
+  month: number
+  day: number
+  reminderOffsets: number[]
+  createdAt: string
+  updatedAt: string
+}
+
 export type ExportData = {
   schemaVersion: number
   exportedAt: string
   habits: Habit[]
   checkRecords: CheckRecord[]
   quantityRecords: QuantityRecord[]
+  projects: Project[]
+  projectNodes: ProjectNode[]
+  lifeItems: LifeItem[]
+  memos: Memo[]
+  birthdays: Birthday[]
   settings: AppSetting[]
 }
