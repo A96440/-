@@ -534,3 +534,11 @@ h2 { color: #718178; font-size: .86rem; font-weight: 600; margin-bottom: 10px; }
 .habit-form input, .habit-form select, .habit-form textarea { background: #f7f5f1; border-color: #e4dfd7; }
 .habit-form input:focus, .habit-form select:focus, .habit-form textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
 .sticky-form-hint { color: #9b938c; font-size: .75rem; margin: -5px 0 0; }
+.icon-recommendation { color: #9b938c; font-size: .76rem; margin: -2px 0 8px; }
+.icon-category-tabs { display: flex; gap: 7px; margin: 0 0 10px; overflow-x: auto; padding: 2px 1px 7px; scrollbar-width: none; }
+.icon-category-tabs::-webkit-scrollbar { display: none; }
+.icon-category-tabs button { background: transparent; border: 0; border-radius: 10px; color: #8d857d; cursor: pointer; flex: 0 0 auto; font-size: .78rem; padding: 9px 11px; white-space: nowrap; }
+.icon-category-tabs button.selected { background: #4d4945; color: #fff; font-weight: 700; }
+.choice-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 9px; max-height: 440px; overflow-y: auto; padding: 4px 2px 8px; }
+.choice { align-items: center; background: #faf8f3; border: 1px solid #ece7df; border-radius: 11px; display: flex; font-size: 1.55rem; height: 52px; justify-content: center; width: auto; }
+.choice.selected { background: var(--accent-soft); border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }

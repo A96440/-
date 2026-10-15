@@ -6,9 +6,9 @@ import { db } from '../../db/db'
 import { createHabit, deleteHabit, saveHabit } from '../../db/repositories'
 import { requestNotificationPermission } from '../../services/reminderService'
 import type { Habit, QuantityUnit, ReminderRepeat, ScheduleType } from '../../domain/types'
+import { contextIconCategory, habitIconCategories } from './iconCatalog'
 
 const colors = ['#b8d8ba', '#f4d5a6', '#d8c6e7', '#b8dce1', '#f1c2c2']
-const icons = ['🌱', '🪴', '🌿', '🌻', '🌸', '🍀', '🌷', '🌹', '🌼', '🪻', '🌾', '🍁', '🍂', '🌲', '🌳', '🎋', '☀️', '🌤️', '🌈', '🌙', '⭐', '✨', '❄️', '🌧️', '🧴', '🪥', '🧼', '🚿', '🛁', '💧', '🧹', '🧽', '🧺', '🧻', '🧯', '🪣', '🧰', '🔧', '🧷', '🪡', '🐈', '🐕', '🐾', '🦜', '🐠', '🐇', '🐢', '🦋', '🐝', '🐞', '🦄', '🏃', '🚶', '🧘', '🏋️', '🚴', '🏊', '🧗', '🤸', '⛹️', '🤾', '🧖', '🚶‍♀️', '📚', '✍️', '📝', '📖', '🎸', '🎨', '🎵', '🎬', '🎧', '🎤', '🎹', '🎮', '🎲', '🧩', '🎯', '🏆', '💰', '💳', '🛒', '🧾', '💊', '🩺', '🩹', '🧪', '🔬', '🥗', '🍎', '🍐', '🍊', '🍋', '🍌', '🍉', '🍓', '🥕', '🌽', '🍞', '🥛', '🍵', '☕', '🍜', '🍣', '🍪', '🧁', '🛌', '⏰', '📅', '🧠', '❤️', '✅', '🔥', '📱', '💻', '⌨️', '🖨️', '✈️', '🚗', '🚲', '🚌', '🚇', '🧳', '🗺️', '🏠', '🛋️', '🛏️', '🧸', '🎁', '🏕️', '🏖️']
 const weekdays = ['一', '二', '三', '四', '五', '六', '日']
 const cycleTabs: { type: ScheduleType; label: string }[] = [{ type: 'daily', label: '每天' }, { type: 'weeklyDays', label: '每周定期' }, { type: 'weeklyCount', label: '每周N天' }, { type: 'monthlyDate', label: '每月定期' }, { type: 'monthlyCount', label: '每月N天' }, { type: 'intervalMonths', label: '每N个月' }, { type: 'yearlyCount', label: '每年N次' }]
 const intervalPresets = [2, 3, 6, 12]
@@ -30,6 +30,7 @@ function HabitFormFields({ existing, id }: { existing?: Habit; id?: string }) {
   const isEditing = Boolean(id)
   const [name, setName] = useState(existing?.name ?? '')
   const [context, setContext] = useState(existing?.context ?? '睡前')
+  const [iconCategory, setIconCategory] = useState(() => habitIconCategories.find((category) => category.icons.includes(existing?.icon ?? ''))?.key ?? contextIconCategory[existing?.context ?? '睡前'] ?? 'daily')
   const [scheduleType, setScheduleType] = useState<ScheduleType>(existing?.scheduleType ?? 'daily')
   const [selectedWeekdays, setSelectedWeekdays] = useState<number[]>(existing?.scheduleConfig.weekdays ?? [1, 2, 3, 4, 5])
   const [scheduleCount, setScheduleCount] = useState(existing?.scheduleConfig.count ?? 1)
@@ -72,6 +73,11 @@ function HabitFormFields({ existing, id }: { existing?: Habit; id?: string }) {
     setSelectedWeekdays((current) => current.includes(day) ? current.filter((item) => item !== day) : [...current, day].sort())
   }
 
+  function changeContext(value: string) {
+    setContext(value)
+    setIconCategory(contextIconCategory[value] ?? 'daily')
+  }
+
   async function toggleReminder() {
     if (!reminderEnabled) await requestNotificationPermission()
     setReminderEnabled((value) => !value)
@@ -81,11 +87,14 @@ function HabitFormFields({ existing, id }: { existing?: Habit; id?: string }) {
     setReminderWeekdays((current) => current.includes(day) ? current.filter((item) => item !== day) : [...current, day].sort())
   }
 
+  const activeCategory = habitIconCategories.find((category) => category.key === iconCategory) ?? habitIconCategories[0]
+  const recommendedCategory = habitIconCategories.find((category) => category.key === (contextIconCategory[context] ?? 'daily')) ?? habitIconCategories[0]
+
   return <section className="page form-page"><header className="page-header"><div><p className="eyebrow">{isEditing ? '调整一个习惯' : '从小事开始'}</p><h1>{isEditing ? '编辑习惯' : '新建习惯'}</h1></div><Link className="quiet-button" to="/habits">取消</Link></header><form className="habit-form" onSubmit={handleSubmit}>
     <label>名称<input autoFocus value={name} onChange={(event) => setName(event.target.value)} placeholder="例如：每日护肤" /></label>
-    <fieldset><legend>图标</legend><div className="choice-grid">{icons.map((item) => <button className={item === icon ? 'choice selected' : 'choice'} key={item} onClick={() => setIcon(item)} type="button">{item}</button>)}</div></fieldset>
+    <label>场景<select onChange={(event) => changeContext(event.target.value)} value={context}><option>全天</option><option>起床</option><option>晨间</option><option>中午</option><option>午间</option><option>晚间</option><option>睡前</option></select></label>
+    <fieldset><legend>图标</legend><p className="icon-recommendation">当前情景「{context}」推荐：{recommendedCategory.label}</p><div aria-label="图标分类" className="icon-category-tabs" role="tablist">{habitIconCategories.map((category) => <button aria-selected={iconCategory === category.key} className={iconCategory === category.key ? 'selected' : ''} key={category.key} onClick={() => setIconCategory(category.key)} role="tab" type="button">{category.label}</button>)}</div><div aria-label={`${activeCategory.label}图标`} className="choice-grid">{activeCategory.icons.map((item, index) => <button aria-label={`${activeCategory.label}图标 ${index + 1}`} className={item === icon ? 'choice selected' : 'choice'} key={`${item}-${index}`} onClick={() => setIcon(item)} type="button">{item}</button>)}</div></fieldset>
     <fieldset><legend>颜色</legend><div className="color-grid">{colors.map((item) => <button aria-label="选择颜色" className={item === color ? 'color-choice selected' : 'color-choice'} key={item} onClick={() => setColor(item)} style={{ backgroundColor: item }} type="button" />)}</div></fieldset>
-    <label>场景<select onChange={(event) => setContext(event.target.value)} value={context}><option>全天</option><option>起床</option><option>晨间</option><option>中午</option><option>午间</option><option>晚间</option><option>睡前</option></select></label>
     <CyclePanel scheduleType={scheduleType} setScheduleType={setScheduleType} selectedWeekdays={selectedWeekdays} setSelectedWeekdays={setSelectedWeekdays} toggleWeekday={toggleWeekday} scheduleCount={scheduleCount} setScheduleCount={setScheduleCount} scheduleDay={scheduleDay} setScheduleDay={setScheduleDay} scheduleInterval={scheduleInterval} setScheduleInterval={setScheduleInterval} customIntervalActive={customIntervalActive} setCustomIntervalActive={setCustomIntervalActive} />
     <ReminderPanel enabled={reminderEnabled} onToggle={toggleReminder} time={reminderTime} setTime={setReminderTime} repeat={reminderRepeat} setRepeat={setReminderRepeat} weekdays={reminderWeekdays} toggleWeekday={toggleReminderWeekday} day={reminderDay} setDay={setReminderDay} month={reminderMonth} setMonth={setReminderMonth} />
     <QuantityPanel enabled={quantityEnabled} setEnabled={setQuantityEnabled} unit={quantityUnit} setUnit={setQuantityUnit} customUnit={quantityCustomUnit} setCustomUnit={setQuantityCustomUnit} increment={quantityIncrement} setIncrement={setQuantityIncrement} target={quantityDailyTarget} setTarget={setQuantityDailyTarget} />
