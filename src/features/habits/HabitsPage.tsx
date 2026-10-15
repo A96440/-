@@ -29,7 +29,7 @@ export function HabitsPage() {
   const filtered = filter === '全部' ? habits : habits.filter((habit) => habit.context === filter)
   const grouped = [...new Set(filtered.map((habit) => habit.context))].sort((a, b) => (contextOrder.indexOf(a) + 1 || 99) - (contextOrder.indexOf(b) + 1 || 99))
   async function toggleHabit(id: string, enabled: boolean) { await setHabitEnabled(id, enabled) }
-  function openHabit(id: string) { navigate(`/habits/${id}/edit`) }
+  function openHabit(id: string) { navigate(`/habits/${id}`) }
   function handleKey(event: React.KeyboardEvent<HTMLElement>, id: string) { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); openHabit(id) } }
 
   if (loading) return <section className="page habits-page loading-page" aria-busy="true"><header className="page-header"><div><p className="eyebrow">正在读取</p><h1>打卡管理</h1></div></header><div className="loading-card" /><div className="loading-card" /><div className="loading-card short" /></section>
