@@ -563,10 +563,10 @@ h2 { color: #718178; font-size: .86rem; font-weight: 600; margin-bottom: 10px; }
 .month-nav { align-items: center; display: flex; gap: 8px; }
 .month-nav button { background: transparent; border: 0; color: #8f8881; cursor: pointer; font-size: 1.7rem; line-height: 1; padding: 2px 5px; }
 .month-nav strong { color: #514d48; font-size: .9rem; }
-.detail-weekdays, .habit-detail-calendar { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); }
+.detail-weekdays, .habit-detail-calendar { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); min-width: 0; width: 100%; }
 .detail-weekdays { color: #aaa49e; font-size: .7rem; margin-bottom: 8px; text-align: center; }
 .habit-detail-calendar { gap: 8px 5px; }
-.detail-day { align-items: center; aspect-ratio: 1; background: #faf9f7; border: 2px dashed #e6e2de; border-radius: 50%; color: #4c4844; cursor: pointer; display: flex; font-size: .82rem; justify-content: center; padding: 0; }
+.detail-day { align-items: center; aspect-ratio: 1; background: #faf9f7; border: 2px dashed #e6e2de; border-radius: 50%; color: #4c4844; cursor: pointer; display: flex; font-size: .82rem; justify-content: center; min-width: 0; padding: 0; }
 .detail-day.empty { background: transparent; border-color: transparent; cursor: default; }
 .detail-day.checked { background: var(--detail-color, var(--accent-soft)); border-color: var(--detail-color, var(--accent)); border-style: solid; color: #403c38; font-weight: 700; }
 .detail-day.today { box-shadow: 0 0 0 2px #4d4945 inset; }
@@ -589,3 +589,12 @@ h2 { color: #718178; font-size: .86rem; font-weight: 600; margin-bottom: 10px; }
 .detail-info-list span { color: #99928b; font-size: .8rem; }
 .detail-info-list strong { color: #4c4844; font-size: .82rem; font-weight: 600; }
 @media (max-width: 380px) { .habit-stat-grid { gap: 5px; } .habit-stat-grid strong { font-size: .86rem; } .habit-stat-grid span { font-size: .62rem; } .habit-detail-calendar { gap: 6px 3px; } .detail-day { font-size: .76rem; } }
+
+/* Keep every habit editor surface inside the phone viewport. */
+.app-main, .page, .form-page, .habit-form, .habit-form fieldset, .habit-form label { min-width: 0; max-width: 100%; }
+.habit-form { overflow: hidden; width: 100%; }
+.habit-form input, .habit-form select, .habit-form textarea { min-width: 0; max-width: 100%; width: 100%; }
+.icon-category-tabs, .choice-grid, .quantity-unit-grid { max-width: 100%; min-width: 0; }
+.choice-grid { overflow-x: hidden; }
+.choice { min-width: 0; }
+.quantity-unit-grid { overscroll-behavior-x: contain; }

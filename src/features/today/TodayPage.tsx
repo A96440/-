@@ -89,8 +89,14 @@ export function TodayPage() {
     return () => window.clearInterval(timer)
   }, [habits, todayKey])
 
-  async function toggleTask(habitId: string) {
-    await setCheck(habitId, today, !completed.has(habitId))
+  async function toggleTask(habit: Habit) {
+    const nextCompleted = !completed.has(habit.id)
+    await setCheck(habit.id, today, nextCompleted)
+    if (!habit.quantityEnabled) return
+    const currentAmount = quantities.find((record) => record.habitId === habit.id && record.date === todayKey)?.amount ?? 0
+    const increment = habit.quantityIncrement ?? 1
+    if (nextCompleted && currentAmount === 0) await addQuantity(habit.id, increment, today)
+    if (!nextCompleted && currentAmount === increment) await addQuantity(habit.id, -increment, today)
   }
 
   async function addHabitQuantity(habit: Habit) {
@@ -98,8 +104,8 @@ export function TodayPage() {
     if (habit.quantityDailyTarget && record.amount >= habit.quantityDailyTarget) await setCheck(habit.id, today, true)
   }
 
-  function handleTaskKey(event: KeyboardEvent<HTMLElement>, habitId: string) {
-    if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); void toggleTask(habitId) }
+  function handleTaskKey(event: KeyboardEvent<HTMLElement>, habit: Habit) {
+    if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); void toggleTask(habit) }
   }
 
   const pendingHabits = habits.filter((habit) => !completed.has(habit.id))
@@ -109,7 +115,7 @@ export function TodayPage() {
   const renderHabit = (habit: Habit, isCompleted: boolean) => {
     const amount = quantityMap.get(habit.id) ?? 0
     const unit = unitLabel(habit)
-    return <article className={'task-card' + (isCompleted ? ' completed' : '')} key={habit.id} onClick={() => void toggleTask(habit.id)} onKeyDown={(event) => handleTaskKey(event, habit.id)} role="button" style={isCompleted ? { '--task-color': habit.color } as CSSProperties : undefined} tabIndex={0}>
+    return <article className={'task-card' + (isCompleted ? ' completed' : '')} key={habit.id} onClick={() => void toggleTask(habit)} onKeyDown={(event) => handleTaskKey(event, habit)} role="button" style={isCompleted ? { '--task-color': habit.color } as CSSProperties : undefined} tabIndex={0}>
       <span className="task-icon">{habit.icon}</span><span className="task-name">{habit.name}</span>
       {habit.quantityEnabled && <span className="quantity-progress">{amount}{habit.quantityDailyTarget ? `/${habit.quantityDailyTarget}` : ''}{unit}</span>}
       {habit.quantityEnabled && <button aria-label={`${habit.name} 增加 ${habit.quantityIncrement ?? 1}${unit}`} className="quantity-add" onClick={(event) => { event.stopPropagation(); void addHabitQuantity(habit) }} onKeyDown={(event) => event.stopPropagation()} type="button">＋{habit.quantityIncrement ?? 1}</button>}

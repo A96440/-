@@ -1,8 +1,8 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { db } from '../../db/db'
-import { setCheck } from '../../db/repositories'
+import { setCheck, setQuantity } from '../../db/repositories'
 import { dateKey, daysInMonth } from '../../domain/schedule'
 import type { CheckRecord, Habit } from '../../domain/types'
 
@@ -39,6 +39,18 @@ export function HabitDetailPage() {
   const [tab, setTab] = useState<DetailTab>('calendar')
   const [today] = useState(() => new Date())
   const [month, setMonth] = useState(() => new Date(new Date().getFullYear(), new Date().getMonth(), 1))
+  const backfillKey = useRef('')
+
+  useEffect(() => {
+    if (!habitQuery?.quantityEnabled || !checksQuery || !quantitiesQuery) return
+    const recordedDates = new Set(quantitiesQuery.filter((record) => record.amount > 0).map((record) => record.date))
+    const missing = checksQuery.filter((check) => check.completed && !recordedDates.has(check.date))
+    if (missing.length === 0) return
+    const key = `${habitQuery.id}:${missing.map((check) => check.date).join(',')}`
+    if (backfillKey.current === key) return
+    backfillKey.current = key
+    void Promise.all(missing.map((check) => setQuantity(habitQuery.id, habitQuery.quantityIncrement ?? 1, new Date(`${check.date}T12:00:00`))))
+  }, [checksQuery, habitQuery, quantitiesQuery])
 
   if (habitQuery === undefined || checksQuery === undefined || quantitiesQuery === undefined) return <section className="page loading-page" aria-busy="true"><div className="loading-card" /><div className="loading-card" /><div className="loading-card short" /></section>
   if (!habitQuery) return <section className="page"><Link className="back-link" to="/habits">← 返回打卡管理</Link><div className="empty-state"><h2>找不到这个习惯</h2><Link className="primary-button" to="/habits">返回列表</Link></div></section>
