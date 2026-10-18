@@ -78,6 +78,9 @@ h2 { color: #718178; font-size: .86rem; font-weight: 600; margin-bottom: 10px; }
 .settings-list button { color: #425449; cursor: pointer; text-align: left; width: 100%; }
 .settings-list button > span:first-child { color: #6b9173; font-size: 1.3rem; width: 26px; }
 .settings-list button strong { font-size: .93rem; font-weight: 600; }
+.version-setting > b { color: var(--accent-ink); font-size: .72rem; font-weight: 700; min-width: 54px; text-align: right; }
+.version-setting:disabled { cursor: wait; opacity: .78; }
+.version-setting small { line-height: 1.35; }
 .visually-hidden { height: 1px; margin: -1px; overflow: hidden; position: absolute; width: 1px; clip: rect(0 0 0 0); }
 .settings-section { margin-top: 28px; }
 .settings-section h2 { margin-bottom: 10px; }

@@ -12,7 +12,7 @@ import { StickyCreatePage } from './features/sticky/StickyCreatePage'
 import { WorkProjectsPage } from './features/sticky/WorkProjectsPage'
 import { StickyCollectionPage } from './features/sticky/StickyCollectionPage'
 import { TodayPage } from './features/today/TodayPage'
-import { updateServiceWorker } from './pwa'
+import { activateAvailableUpdate } from './pwa'
 import './App.css'
 
 export default function App() {
@@ -22,15 +22,11 @@ export default function App() {
     if (updating) return
     setUpdating(true)
     try {
-      if ('serviceWorker' in navigator) {
-        const registrations = await navigator.serviceWorker.getRegistrations()
-        await Promise.all(registrations.map((registration) => registration.update()))
-      }
-      await Promise.race([updateServiceWorker(true), new Promise((resolve) => window.setTimeout(resolve, 1500))])
+      await activateAvailableUpdate()
+      window.location.reload()
     } catch {
-      // Reload below still lets the browser activate a newly downloaded worker.
+      setUpdating(false)
     }
-    window.location.reload()
   }
   useEffect(() => {
     const handleUpdate = () => setUpdateReady(true)
