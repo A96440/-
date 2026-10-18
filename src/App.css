@@ -547,6 +547,42 @@ h2 { color: #718178; font-size: .86rem; font-weight: 600; margin-bottom: 10px; }
 .completed-row-meta { color: #aaa39c; flex: 0 0 68px; font-size: .7rem; text-align: right; }
 @media (max-width: 390px) { .sticky-quadrants { gap: 9px; } .sticky-quadrant { min-height: 230px; padding: 13px 11px; } .quadrant-heading h2 { font-size: .86rem; } .quadrant-add { font-size: 1.3rem; } .sticky-preview { gap: 7px; min-height: 42px; padding: 8px 0; } .sticky-preview strong { font-size: .76rem; } .sticky-preview small, .sticky-preview span { font-size: .63rem; } .sticky-row-check { height: 19px; width: 19px; } .completed-row-meta { flex-basis: 58px; font-size: .63rem; } }
 
+/* Sticky preview readability: active items get the preview slots; completed items stay below. */
+.sticky-quadrant { min-height: 220px; }
+.sticky-preview-list { grid-template-columns: minmax(0, 1fr); min-width: 0; overflow: hidden; }
+.sticky-preview { max-width: 100%; min-width: 0; overflow: hidden; }
+.sticky-preview strong, .sticky-preview small, .sticky-preview span, .sticky-row-copy { max-width: 100%; min-width: 0; }
+.sticky-preview strong, .sticky-row-copy strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.life-preview .sticky-row-copy { overflow: hidden; }
+.memo-preview { align-items: flex-start; min-height: 0; padding: 9px 0; }
+.memo-preview span { color: #514b46; display: -webkit-box; font-size: .84rem; line-height: 1.42; overflow: hidden; text-overflow: ellipsis; white-space: normal; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+.quadrant-more { color: #8b8178; display: block; font-size: .72rem; line-height: 1.35; margin-top: 2px; min-height: 44px; overflow: hidden; padding: 12px 0 4px; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Keep the completed section on one grid so project and life rows line up exactly. */
+.completed-sticky-row { display: grid; gap: 8px; grid-template-columns: 44px minmax(0, 1fr) 76px; min-width: 0; }
+.completed-sticky-row .completed-row-check { align-items: center; border: 0; display: inline-flex; height: 44px; justify-content: center; margin: 0; padding: 0; position: relative; width: 44px; }
+.completed-sticky-row .completed-row-check::before { border: 1.5px solid #aaa39b; border-radius: 4px; content: ''; height: 21px; position: absolute; width: 21px; }
+.completed-sticky-row .completed-row-main { align-items: center; display: flex; height: 44px; min-width: 0; overflow: hidden; padding: 0; width: 100%; }
+.completed-sticky-row .completed-row-main strong { line-height: 1.35; min-width: 0; width: 100%; }
+.completed-sticky-row .completed-row-meta { color: #aaa39c; flex: none; font-size: .7rem; min-width: 0; overflow: hidden; text-align: right; text-overflow: ellipsis; white-space: nowrap; width: 76px; }
+
+/* The add chooser is intentionally text-first; emoji glyphs vary by device. */
+.create-choice { align-items: flex-start; justify-content: center; min-height: 116px; }
+.create-choice strong { color: #45413d; }
+.create-choice small { max-width: 18em; }
+.create-choice span { display: none; }
+@media (max-width: 390px) {
+  .sticky-quadrant { min-height: 220px; }
+  .sticky-preview { min-height: 42px; }
+  .sticky-preview strong { font-size: .8rem; }
+  .sticky-preview small { font-size: .68rem; }
+  .memo-preview span { font-size: .82rem; }
+  .completed-sticky-row { grid-template-columns: 40px minmax(0, 1fr) 62px; }
+  .completed-sticky-row .completed-row-check { height: 40px; width: 40px; }
+  .completed-sticky-row .completed-row-meta { font-size: .65rem; width: 62px; }
+  .create-choice { min-height: 110px; padding: 14px; }
+}
+
 /* Habit editor consistency: icons, controls, and fields share one visual system. */
 .cycle-title { align-items: center; }
 .cycle-icon, .panel-icon { align-items: center; display: inline-flex; }
