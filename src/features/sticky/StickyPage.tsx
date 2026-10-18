@@ -11,7 +11,7 @@ import { useUndoNotice } from './useUndoNotice'
 
 type Composer = 'life' | 'memo' | 'birthday' | null
 
-const PREVIEW_LIMIT = 4
+const PREVIEW_LIMIT = 5
 
 function formatDate(value?: string) {
   if (!value) return ''
