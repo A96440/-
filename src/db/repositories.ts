@@ -73,6 +73,60 @@ export async function deleteProject(projectId: string): Promise<void> {
   })
 }
 
+/** Permanently remove completed work projects (and their nodes) and life items. */
+export type CompletedStickyBatch = {
+  batchId: string
+  projectIds: string[]
+  lifeIds: string[]
+  archivedAt: string
+  count: number
+}
+
+const completedStickyBatchSetting = 'lastCompletedStickyBatch'
+
+/** Archive completed items as one reversible batch. Nodes and history stay intact. */
+export async function archiveCompletedStickies(): Promise<CompletedStickyBatch | null> {
+  return db.transaction('rw', db.projects, db.lifeItems, db.settings, async () => {
+    const [projects, lifeItems] = await Promise.all([
+      db.projects.where('status').equals('completed').toArray(),
+      db.lifeItems.where('status').equals('completed').toArray(),
+    ])
+    if (projects.length === 0 && lifeItems.length === 0) return null
+    const archivedAt = new Date().toISOString()
+    const batch: CompletedStickyBatch = {
+      batchId: newId(),
+      projectIds: projects.map((project) => project.id),
+      lifeIds: lifeItems.map((item) => item.id),
+      archivedAt,
+      count: projects.length + lifeItems.length,
+    }
+    await db.projects.bulkPut(projects.map((project) => ({ ...project, status: 'archived' as const, updatedAt: archivedAt })))
+    await db.lifeItems.bulkPut(lifeItems.map((item) => ({ ...item, status: 'archived' as const, updatedAt: archivedAt })))
+    await db.settings.put({ key: completedStickyBatchSetting, value: batch })
+    return batch
+  })
+}
+
+/** Restore only the exact batch items that have not been changed since archiving. */
+export async function restoreCompletedStickies(batch: CompletedStickyBatch): Promise<number> {
+  return db.transaction('rw', db.projects, db.lifeItems, db.settings, async () => {
+    const saved = await db.settings.get(completedStickyBatchSetting)
+    const savedBatch = saved?.value as CompletedStickyBatch | undefined
+    if (savedBatch?.batchId !== batch.batchId) return 0
+    const [projects, lifeItems] = await Promise.all([
+      db.projects.bulkGet(batch.projectIds),
+      db.lifeItems.bulkGet(batch.lifeIds),
+    ])
+    const restoredAt = new Date().toISOString()
+    const restoreProjects = projects.filter((project): project is Project => Boolean(project && project.status === 'archived' && project.updatedAt === batch.archivedAt)).map((project) => ({ ...project, status: 'completed' as const, updatedAt: restoredAt }))
+    const restoreLifeItems = lifeItems.filter((item): item is LifeItem => Boolean(item && item.status === 'archived' && item.updatedAt === batch.archivedAt)).map((item) => ({ ...item, status: 'completed' as const, updatedAt: restoredAt }))
+    await db.projects.bulkPut(restoreProjects)
+    await db.lifeItems.bulkPut(restoreLifeItems)
+    await db.settings.delete(completedStickyBatchSetting)
+    return restoreProjects.length + restoreLifeItems.length
+  })
+}
+
 export async function createProjectNode(projectId: string, title: string): Promise<ProjectNode> {
   const current = await db.projectNodes.where('projectId').equals(projectId).toArray()
   const now = new Date().toISOString()

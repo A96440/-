@@ -3,7 +3,7 @@ import { useRef, useState } from 'react'
 import type { FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { db } from '../../db/db'
-import { createBirthday, createLifeItem, createMemo, deleteBirthday, deleteLifeItem, deleteMemo, saveBirthday, saveLifeItem, saveMemo, setProjectStatus, toggleLifeItem } from '../../db/repositories'
+import { archiveCompletedStickies, createBirthday, createLifeItem, createMemo, deleteBirthday, deleteLifeItem, deleteMemo, restoreCompletedStickies, saveBirthday, saveLifeItem, saveMemo, setProjectStatus, toggleLifeItem } from '../../db/repositories'
 import { daysUntil, nextBirthdayDate, projectMeta } from '../../domain/sticky'
 import type { Birthday, CalendarType, LifeItem, Memo, Project } from '../../domain/types'
 import { UndoNoticeBar } from './UndoNoticeBar'
@@ -27,6 +27,7 @@ export function StickyPage() {
   const [editingMemo, setEditingMemo] = useState<Memo | undefined>()
   const [editingLife, setEditingLife] = useState<LifeItem | undefined>()
   const [editingBirthday, setEditingBirthday] = useState<Birthday | undefined>()
+  const [clearStatus, setClearStatus] = useState('')
   const navigate = useNavigate()
   const undoNotice = useUndoNotice()
   const loading = [projectsQuery, lifeQuery, memosQuery, birthdaysQuery].some((value) => value === undefined)
@@ -53,6 +54,23 @@ export function StickyPage() {
     undoNotice.show({ message: nextStatus === 'completed' ? `已完成：${item.title}` : `已恢复：${item.title}`, undo: () => toggleLifeItem(item.id) })
   }
 
+  async function clearCompleted() {
+    const count = completedProjects.length + completedLife.length
+    if (count === 0) return
+    setClearStatus('')
+    try {
+      const batch = await archiveCompletedStickies()
+      if (!batch) return
+      setClearStatus(`已清空 ${batch.count} 项已完成事项，可从撤回提示恢复`)
+      undoNotice.show({ message: `已清空 ${batch.count} 项已完成事项`, undo: async () => {
+        const restored = await restoreCompletedStickies(batch)
+        setClearStatus(restored > 0 ? `已恢复 ${restored} 项已完成事项` : '这批事项已经发生变化，无法恢复')
+      } })
+    } catch {
+      setClearStatus('清空失败，请稍后重试')
+    }
+  }
+
   if (loading) return <section className="page sticky-page loading-page" aria-busy="true"><header className="page-header"><div><p className="eyebrow">正在整理</p><h1>便利贴</h1></div></header><div className="sticky-quadrants"><div className="loading-card" /><div className="loading-card" /><div className="loading-card" /><div className="loading-card" /></div></section>
 
   const closeComposer = () => { setComposer(null); setEditingMemo(undefined); setEditingLife(undefined); setEditingBirthday(undefined) }
@@ -62,7 +80,7 @@ export function StickyPage() {
     <section className="sticky-quadrant life-quadrant" onClick={() => navigate('/stickies/life')}><QuadrantHeader addTo="/stickies/new?kind=life" title="生活" to="/stickies/life" /><div className="sticky-preview-list">{activeLife.slice(0, PREVIEW_LIMIT).map((item) => <LifePreview key={item.id} item={item} onComplete={() => void changeLifeStatus(item)} onEdit={() => { setEditingLife(item); setComposer('life') }} />)}</div>{activeLife.length > PREVIEW_LIMIT && <Link className="quadrant-more" onClick={(event) => event.stopPropagation()} to="/stickies/life">还有 {activeLife.length - PREVIEW_LIMIT} 项，查看全部</Link>}{activeLife.length === 0 && <EmptyQuadrant text={completedLife.length > 0 ? '暂无待办 · 已完成事项见下方' : '还没有生活事项'} />}</section>
     <section className="sticky-quadrant memo-quadrant" onClick={() => navigate('/stickies/memos')}><QuadrantHeader addTo="/stickies/new?kind=memo" title="灵感速记" to="/stickies/memos" /><div className="sticky-preview-list">{activeMemos.slice(0, PREVIEW_LIMIT).map((memo) => <button className="sticky-preview memo-preview" key={memo.id} onClick={(event) => { event.stopPropagation(); setEditingMemo(memo); setComposer('memo') }} type="button"><span>{memo.content || '暂无内容'}</span></button>)}</div>{activeMemos.length > PREVIEW_LIMIT && <Link className="quadrant-more" onClick={(event) => event.stopPropagation()} to="/stickies/memos">还有 {activeMemos.length - PREVIEW_LIMIT} 条，查看全部</Link>}{activeMemos.length === 0 && <EmptyQuadrant text="记录突然想到的事情" />}</section>
     <section className="sticky-quadrant birthday-quadrant" onClick={() => navigate('/stickies/birthdays')}><QuadrantHeader addTo="/stickies/new?kind=birthday" title="生日" to="/stickies/birthdays" /><div className="sticky-preview-list">{upcomingBirthdays.slice(0, PREVIEW_LIMIT).map(({ birthday, date }) => <button className="sticky-preview birthday-preview" key={birthday.id} onClick={(event) => { event.stopPropagation(); setEditingBirthday(birthday); setComposer('birthday') }} type="button"><strong>{birthday.name}</strong><small>还有 {daysUntil(date)} 天</small></button>)}</div>{upcomingBirthdays.length > PREVIEW_LIMIT && <Link className="quadrant-more" onClick={(event) => event.stopPropagation()} to="/stickies/birthdays">还有 {upcomingBirthdays.length - PREVIEW_LIMIT} 位，查看全部</Link>}{upcomingBirthdays.length === 0 && <EmptyQuadrant text="添加一个重要的生日" />}</section>
-  </div>{(completedProjects.length > 0 || completedLife.length > 0) && <section className="sticky-completed-section"><div className="sticky-section-heading"><h2>已完成</h2><span>{completedProjects.length + completedLife.length} 项</span></div>{completedProjects.map((project) => <div className="completed-sticky-row" key={project.id}><button aria-label={`恢复 ${project.name}`} className="completed-row-check" onClick={() => void changeProjectStatus(project)} type="button">✓</button><Link className="completed-row-main" to={`/stickies/projects/${project.id}`}><strong>{project.name}</strong></Link><span className="completed-row-meta">项目已完成</span></div>)}{completedLife.map((item) => <div className="completed-sticky-row" key={item.id}><button aria-label={`恢复 ${item.title}`} className="completed-row-check" onClick={() => void changeLifeStatus(item)} type="button">✓</button><button className="completed-row-main" onClick={() => { setEditingLife(item); setComposer('life') }} type="button"><strong>{item.title}</strong></button><span className="completed-row-meta">生活事项</span></div>)}</section>}{composer === 'life' && <LifeComposer onClose={closeComposer} item={editingLife} />}{composer === 'memo' && <MemoComposer onClose={closeComposer} memo={editingMemo} />}{composer === 'birthday' && <BirthdayComposer onClose={closeComposer} birthday={editingBirthday} />}{<UndoNoticeBar notice={undoNotice.notice} onDismiss={undoNotice.dismiss} />}</section>
+  </div>{(completedProjects.length > 0 || completedLife.length > 0) && <section className="sticky-completed-section"><div className="sticky-section-heading"><h2>已完成</h2><span>{completedProjects.length + completedLife.length} 项</span></div>{completedProjects.map((project) => <div className="completed-sticky-row" key={project.id}><button aria-label={`恢复 ${project.name}`} className="completed-row-check" onClick={() => void changeProjectStatus(project)} type="button">✓</button><Link className="completed-row-main" to={`/stickies/projects/${project.id}`}><strong>{project.name}</strong></Link><span className="completed-row-meta">项目已完成</span></div>)}{completedLife.map((item) => <div className="completed-sticky-row" key={item.id}><button aria-label={`恢复 ${item.title}`} className="completed-row-check" onClick={() => void changeLifeStatus(item)} type="button">✓</button><button className="completed-row-main" onClick={() => { setEditingLife(item); setComposer('life') }} type="button"><strong>{item.title}</strong></button><span className="completed-row-meta">生活事项</span></div>)}<div className="sticky-completed-footer"><span>清空后可在撤回提示中恢复</span><button className="clear-completed-button" onClick={() => void clearCompleted()} type="button">清空已完成</button></div></section>}{clearStatus && <p className="sticky-clear-status" role="status">{clearStatus}</p>}{composer === 'life' && <LifeComposer onClose={closeComposer} item={editingLife} />}{composer === 'memo' && <MemoComposer onClose={closeComposer} memo={editingMemo} />}{composer === 'birthday' && <BirthdayComposer onClose={closeComposer} birthday={editingBirthday} />}{<UndoNoticeBar notice={undoNotice.notice} onDismiss={undoNotice.dismiss} />}</section>
 }
 
 function QuadrantHeader({ title, to, addTo }: { title: string; to?: string; addTo: string }) {

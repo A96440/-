@@ -14,6 +14,7 @@ import { StickyCollectionPage } from './features/sticky/StickyCollectionPage'
 import { TodayPage } from './features/today/TodayPage'
 import { activateAvailableUpdate } from './pwa'
 import './App.css'
+import './features/sticky/sticky.css'
 
 export default function App() {
   const [updateReady, setUpdateReady] = useState(false)

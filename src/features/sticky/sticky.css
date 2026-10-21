@@ -1,0 +1,279 @@
+/*
+ * 小日常便利贴第一版规范
+ *
+ * This file is intentionally the last sticky layer. It keeps all sticky
+ * surfaces on one paper stock and gives the mobile list a single readable
+ * rhythm. App.css still contains legacy page rules for the other features;
+ * this file is imported after it so sticky changes stay isolated.
+ */
+:root {
+  --ui-paper: #fbf8ef;
+  --ui-paper-shadow: rgba(83, 76, 67, .13);
+  --ui-text: #403c38;
+  --ui-text-secondary: #746d66;
+  --ui-text-muted: #9a928b;
+  --ui-divider: rgba(123, 114, 103, .17);
+  --ui-border: rgba(120, 110, 100, .18);
+  --sticky-work: #b86f72;
+  --sticky-life: #5b866c;
+  --sticky-memo: #b27e47;
+  --sticky-birthday: #7284ad;
+}
+
+/* A single physical-paper surface: quiet texture, no rotation, no fake grey triangle. */
+.sticky-quadrant,
+.collection-list,
+.create-choice,
+.work-project-card,
+.project-progress-card {
+  background-color: var(--ui-paper);
+  background-image: radial-gradient(rgba(90, 80, 70, .045) .55px, transparent .72px), linear-gradient(135deg, rgba(255,255,255,.46), transparent 58%);
+  background-size: 5px 5px, auto;
+  border: 1px solid var(--ui-border);
+  box-shadow: 0 6px 14px var(--ui-paper-shadow), 1px 1px 0 rgba(255,255,255,.86) inset;
+}
+
+.sticky-quadrants { gap: 12px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.sticky-quadrant {
+  border-radius: 12px;
+  min-height: 220px;
+  overflow: hidden;
+  padding: 12px 14px 14px;
+  transform: none;
+}
+.sticky-quadrant::before { opacity: .35; }
+.sticky-quadrant::after { display: none; }
+.sticky-quadrant:nth-child(1),
+.sticky-quadrant:nth-child(2),
+.sticky-quadrant:nth-child(3),
+.sticky-quadrant:nth-child(4) { transform: none; }
+.work-quadrant,
+.life-quadrant,
+.memo-quadrant,
+.birthday-quadrant { background-color: var(--ui-paper); background-image: radial-gradient(rgba(90,80,70,.045) .55px, transparent .72px), linear-gradient(135deg, rgba(255,255,255,.46), transparent 58%); }
+
+.quadrant-heading { align-items: center; justify-content: space-between; margin-bottom: 4px; min-height: 44px; }
+.quadrant-heading h2 { font-size: 16px; line-height: 1.3; }
+.work-quadrant .quadrant-heading h2 { color: var(--sticky-work); }
+.life-quadrant .quadrant-heading h2 { color: var(--sticky-life); }
+.memo-quadrant .quadrant-heading h2 { color: var(--sticky-memo); }
+.birthday-quadrant .quadrant-heading h2 { color: var(--sticky-birthday); }
+.quadrant-title-link { min-width: 0; }
+.quadrant-add {
+  align-items: center;
+  color: var(--ui-text-secondary);
+  display: inline-flex;
+  flex: 0 0 44px;
+  font-size: 1.35rem;
+  height: 44px;
+  justify-content: center;
+  line-height: 1;
+  margin-right: -5px;
+  text-decoration: none;
+  width: 44px;
+}
+
+.sticky-preview-list { display: grid; gap: 0; grid-template-columns: minmax(0, 1fr); min-width: 0; overflow: hidden; }
+.sticky-preview {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--ui-divider);
+  border-radius: 0;
+  color: var(--ui-text);
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  min-height: 44px;
+  min-width: 0;
+  overflow: hidden;
+  padding: 8px 0;
+  text-align: left;
+  touch-action: pan-y;
+  width: 100%;
+}
+.sticky-preview:last-child { border-bottom: 0; }
+.sticky-preview strong,
+.sticky-preview small,
+.sticky-preview span,
+.sticky-row-copy { max-width: 100%; min-width: 0; }
+.sticky-preview strong,
+.sticky-row-copy strong {
+  color: var(--ui-text);
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.45;
+  max-width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sticky-preview small,
+.sticky-row-copy span,
+.sticky-row-copy small { color: var(--ui-text-muted); font-size: 12px; line-height: 1.4; }
+.sticky-row-copy { display: flex; flex: 1 1 auto; flex-direction: column; gap: 2px; overflow: hidden; }
+.sticky-row-copy span,
+.sticky-row-copy small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.life-preview .sticky-row-copy strong { white-space: nowrap; }
+.project-preview { cursor: pointer; text-decoration: none; }
+.birthday-preview { cursor: pointer; }
+.birthday-preview small { margin-left: auto; white-space: nowrap; }
+.memo-preview { align-items: flex-start; cursor: pointer; padding-block: 9px; }
+.memo-preview span {
+  color: var(--ui-text);
+  display: -webkit-box;
+  font-size: 14px;
+  line-height: 1.45;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: normal;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+/* The visible square is 20px; the button remains a 44px touch target. */
+.sticky-row-check {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  color: var(--ui-text-secondary);
+  cursor: pointer;
+  display: inline-flex;
+  flex: 0 0 44px;
+  font-size: 13px;
+  height: 44px;
+  justify-content: center;
+  padding: 0;
+  position: relative;
+  width: 44px;
+}
+.sticky-row-check::before {
+  border: 1.5px solid #bdb5ad;
+  border-radius: 4px;
+  content: '';
+  height: 20px;
+  position: absolute;
+  width: 20px;
+}
+.sticky-row-check:focus-visible { outline: 2px solid var(--accent); outline-offset: -1px; }
+
+/* Home completed rows and the bottom clear action share one grid. */
+.sticky-completed-section,
+.sticky-completed-footer { border-top: 1px dashed var(--ui-divider); margin-top: 22px; padding-top: 14px; }
+.sticky-completed-footer { align-items: center; display: flex; gap: 10px; justify-content: space-between; min-height: 58px; }
+.sticky-completed-footer > span { color: var(--ui-text-muted); flex: 1; font-size: 12px; line-height: 1.4; min-width: 0; }
+.sticky-section-heading { align-items: center; min-height: 44px; }
+.sticky-section-heading h2 { color: var(--ui-text-secondary); font-size: 14px; margin: 0; }
+.sticky-completed-actions { align-items: center; display: flex; gap: 8px; }
+.sticky-completed-actions > span { color: var(--ui-text-muted); font-size: 12px; }
+.clear-completed-button {
+  background: rgba(255,255,255,.45);
+  border: 1px solid var(--ui-border);
+  border-radius: 8px;
+  color: var(--ui-text-secondary);
+  cursor: pointer;
+  font-size: 12px;
+  min-height: 44px;
+  padding: 8px 12px;
+}
+.clear-completed-button:active { background: rgba(255,255,255,.8); }
+.completed-sticky-row {
+  align-items: center;
+  border-bottom: 1px solid var(--ui-divider);
+  display: grid;
+  gap: 8px;
+  grid-template-columns: 44px minmax(0, 1fr) auto;
+  min-height: 52px;
+  min-width: 0;
+  padding: 4px 0;
+}
+.completed-sticky-row .completed-row-check {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  color: var(--ui-text-muted);
+  cursor: pointer;
+  display: inline-flex;
+  height: 44px;
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+  position: relative;
+  width: 44px;
+}
+.completed-sticky-row .completed-row-check::before { border: 1.5px solid #aaa39b; border-radius: 4px; content: ''; height: 20px; position: absolute; width: 20px; }
+.completed-sticky-row .completed-row-main {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  color: var(--ui-text-muted);
+  display: flex;
+  height: 44px;
+  min-width: 0;
+  overflow: hidden;
+  padding: 0;
+  text-align: left;
+  width: 100%;
+}
+.completed-sticky-row .completed-row-main strong { color: var(--ui-text-muted); display: block; font-size: 14px; line-height: 1.4; min-width: 0; overflow: hidden; text-decoration: line-through; text-overflow: ellipsis; white-space: nowrap; width: 100%; }
+.completed-sticky-row .completed-row-meta { color: var(--ui-text-muted); font-size: 12px; min-width: 0; overflow: hidden; text-align: right; text-overflow: ellipsis; white-space: nowrap; }
+.sticky-clear-status,
+.sticky-status-message {
+  align-items: center;
+  background: rgba(233,241,232,.82);
+  border: 1px solid rgba(109,152,117,.24);
+  border-radius: 8px;
+  color: var(--ui-text-secondary);
+  display: flex;
+  font-size: 13px;
+  gap: 10px;
+  line-height: 1.4;
+  margin: 10px 0 0;
+  min-height: 44px;
+  padding: 8px 12px;
+}
+.sticky-clear-status > span,
+.sticky-status-message > span { flex: 1; min-width: 0; }
+.sticky-clear-status button { background: transparent; border: 0; color: var(--accent-ink); cursor: pointer; font-size: 13px; min-height: 44px; padding: 8px 4px; white-space: nowrap; }
+.sticky-status-message { background: #fff8f5; border-color: rgba(180,91,80,.25); color: #805a52; }
+
+/* Long-form lists show the complete item; only home previews clamp. */
+.collection-list { border-radius: 12px; padding: 4px 12px; }
+.collection-row { min-height: 58px; padding: 8px 0; }
+.collection-row-copy { min-width: 0; }
+.collection-row-copy strong { color: var(--ui-text); font-size: 14px; line-height: 1.5; min-width: 0; overflow-wrap: anywhere; white-space: normal; }
+.collection-row-copy small,
+.birthday-collection-row > span { color: var(--ui-text-muted); font-size: 12px; line-height: 1.4; }
+.life-collection-row .collection-row-copy strong,
+.memo-collection-row .collection-row-copy strong { overflow: visible; text-overflow: clip; }
+.completed-row .collection-row-copy strong { color: var(--ui-text-muted); text-decoration: line-through; }
+.birthday-collection-row > span { flex: 0 0 auto; white-space: nowrap; }
+.collection-empty { color: var(--ui-text-muted); font-size: 14px; padding: 32px 12px; }
+
+/* Text-first add chooser; emoji glyphs vary across devices. */
+.create-choice-grid { gap: 10px; }
+.create-choice { align-items: flex-start; border-radius: 12px; justify-content: center; min-height: 116px; padding: 16px; }
+.create-choice strong { color: var(--ui-text); font-size: 16px; line-height: 1.35; }
+.create-choice small { color: var(--ui-text-muted); font-size: 12px; line-height: 1.45; max-width: 18em; }
+.create-choice span { display: none; }
+
+/* More links and undo feedback have real touch targets without adding ornament. */
+.quadrant-more { color: var(--ui-text-secondary); display: block; font-size: 12px; line-height: 1.4; min-height: 44px; padding: 12px 0 4px; }
+.sticky-undo-notice { align-items: center; border-radius: 10px; gap: 10px; min-height: 52px; padding: 4px 8px 4px 12px; }
+.sticky-undo-notice > span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sticky-undo-notice button { min-height: 44px; padding: 8px 7px; }
+
+@media (max-width: 390px) {
+  .sticky-quadrants { gap: 9px; }
+  .sticky-quadrant { min-height: 220px; padding-inline: 11px; }
+  .quadrant-heading h2 { font-size: 15px; }
+  .sticky-preview { min-height: 44px; }
+  .sticky-preview strong { font-size: 13px; }
+  .sticky-preview small, .sticky-row-copy span, .sticky-row-copy small { font-size: 12px; }
+  .completed-sticky-row { grid-template-columns: 40px minmax(0, 1fr) auto; }
+  .completed-sticky-row .completed-row-check { width: 40px; }
+  .completed-sticky-row .completed-row-meta { font-size: 11px; }
+  .create-choice { min-height: 110px; padding: 14px; }
+}
